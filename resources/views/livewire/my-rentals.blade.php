@@ -1,12 +1,12 @@
-<div style="background:#ffffff; border-radius:1rem; padding:1.5rem; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-        <h2 style="font-size:1.25rem; font-weight:800; color:#0f172a;">
-            📋 Riwayat Pemesanan Saya
+<div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 pb-4 border-b border-slate-100">
+        <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+            <span>📋</span> Riwayat Pemesanan Saya
         </h2>
 
         {{-- Filter Status --}}
         <div>
-            <select wire:model.live="statusFilter" style="padding:0.4rem 0.75rem; border:1px solid #cbd5e1; border-radius:0.375rem; font-size:0.875rem; color:#0f172a; background:#fff;">
+            <select wire:model.live="statusFilter" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Semua Status</option>
                 <option value="pending">Menunggu Pembayaran (Pending)</option>
                 <option value="confirmed">Dikonfirmasi (Confirmed)</option>
@@ -19,62 +19,72 @@
     </div>
 
     @if($rentals->isEmpty())
-        <div style="text-align:center; padding:3rem 1rem; background:#f8fafc; border-radius:0.75rem; color:#64748b;">
-            <div style="font-size:3rem; margin-bottom:0.5rem;">🚘</div>
-            <p style="font-size:1rem; font-weight:600; color:#334155; margin-bottom:0.5rem;">Belum ada riwayat pemesanan.</p>
-            <a href="/cars" style="display:inline-block; background:#2563eb; color:#fff; font-weight:700; padding:0.5rem 1.25rem; border-radius:0.375rem; text-decoration:none; font-size:0.875rem;">
-                Sewa Mobil Sekarang
+        <div class="text-center py-16 px-4 bg-slate-50 rounded-2xl text-slate-500">
+            <span class="text-5xl block mb-3">🚘</span>
+            <p class="text-base font-bold text-slate-800 mb-4">Belum ada riwayat pemesanan.</p>
+            <a href="/cars" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-6 py-3 rounded-xl text-sm shadow-md shadow-blue-500/20 active:scale-95 transition-all">
+                Sewa Mobil Sekarang →
             </a>
         </div>
     @else
-        <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="space-y-4">
             @foreach($rentals as $rental)
-                <div style="border:1px solid #e2e8f0; border-radius:0.75rem; padding:1.25rem; background:#fff; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div class="border border-slate-200/80 rounded-2xl p-6 bg-white hover:border-blue-200 hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
-                            <span style="font-family:monospace; font-weight:700; font-size:0.9rem; background:#f1f5f9; padding:0.2rem 0.5rem; border-radius:0.25rem; color:#334155;">
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <span class="font-mono font-bold text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-lg">
                                 {{ $rental->reference_number }}
                             </span>
 
                             {{-- Status Badge --}}
                             @php
                                 $statusColors = [
-                                    'pending' => ['bg' => '#fef3c7', 'text' => '#b45309', 'label' => 'Menunggu Pembayaran'],
-                                    'confirmed' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Dikonfirmasi'],
-                                    'active' => ['bg' => '#dcfce7', 'text' => '#15803d', 'label' => 'Aktif'],
-                                    'completed' => ['bg' => '#f1f5f9', 'text' => '#475569', 'label' => 'Selesai'],
-                                    'cancelled' => ['bg' => '#fee2e2', 'text' => '#b91c1c', 'label' => 'Dibatalkan'],
-                                    'expired' => ['bg' => '#f3f4f6', 'text' => '#6b7280', 'label' => 'Kadaluwarsa'],
+                                    'pending'   => 'bg-amber-100 text-amber-800 border-amber-200',
+                                    'confirmed' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                    'active'    => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                                    'completed' => 'bg-slate-100 text-slate-700 border-slate-200',
+                                    'cancelled' => 'bg-rose-100 text-rose-800 border-rose-200',
+                                    'expired'   => 'bg-gray-100 text-gray-700 border-gray-200',
                                 ];
-                                $st = $statusColors[$rental->status->value ?? $rental->status] ?? ['bg' => '#e2e8f0', 'text' => '#334155', 'label' => ucfirst($rental->status->value ?? $rental->status)];
+                                $statusLabels = [
+                                    'pending'   => 'Menunggu Pembayaran',
+                                    'confirmed' => 'Dikonfirmasi',
+                                    'active'    => 'Aktif Berjalan',
+                                    'completed' => 'Selesai',
+                                    'cancelled' => 'Dibatalkan',
+                                    'expired'   => 'Kadaluwarsa',
+                                ];
+                                $rawStatus = $rental->status->value ?? $rental->status;
+                                $badgeClass = $statusColors[$rawStatus] ?? 'bg-slate-100 text-slate-700 border-slate-200';
+                                $badgeLabel = $statusLabels[$rawStatus] ?? ucfirst($rawStatus);
                             @endphp
-                            <span style="background:{{ $st['bg'] }}; color:{{ $st['text'] }}; padding:0.2rem 0.6rem; border-radius:999px; font-size:0.75rem; font-weight:700;">
-                                {{ $st['label'] }}
+                            <span class="px-3 py-1 rounded-full text-xs font-black border {{ $badgeClass }}">
+                                {{ $badgeLabel }}
                             </span>
                         </div>
 
-                        <h4 style="font-size:1.125rem; font-weight:800; color:#0f172a; margin-bottom:0.25rem;">
+                        <h4 class="text-lg font-black text-slate-900 mb-1">
                             {{ $rental->car->brand }} {{ $rental->car->model }}
                         </h4>
 
-                        <div style="font-size:0.85rem; color:#64748b; display:flex; gap:1.5rem; flex-wrap:wrap;">
-                            <span>📅 {{ $rental->start_date->format('d M Y') }} - {{ $rental->end_date->format('d M Y') }}</span>
-                            <span>📍 Pickup: {{ Str::limit($rental->pickup_location, 25) }}</span>
+                        <div class="text-xs font-semibold text-slate-500 flex flex-wrap gap-4">
+                            <span>📅 {{ $rental->start_date->format('d M Y') }} – {{ $rental->end_date->format('d M Y') }}</span>
+                            <span>📍 Pickup: {{ Str::limit($rental->pickup_location, 30) }}</span>
                         </div>
                     </div>
 
-                    <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
-                        <span style="font-size:1.125rem; font-weight:800; color:#2563eb;">
+                    <div class="flex flex-col items-start md:items-end gap-3 w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+                        <span class="text-xl font-black text-blue-600">
                             Rp {{ number_format($rental->total_cost_idr, 0, ',', '.') }}
                         </span>
 
-                        <div style="display:flex; gap:0.5rem;">
-                            <a href="/bookings/{{ $rental->id }}" style="background:#f1f5f9; color:#334155; font-size:0.8rem; font-weight:700; padding:0.4rem 0.8rem; border-radius:0.375rem; text-decoration:none;" onmouseover="this.style.background='#e2e8f0';" onmouseout="this.style.background='#f1f5f9';">
-                                Detail Pemesanan
+                        <div class="flex items-center gap-2">
+                            <a href="/bookings/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition-all">
+                                Detail
                             </a>
 
                             @if(($rental->status->value ?? $rental->status) === 'pending')
-                                <a href="/payments/{{ $rental->id }}" style="background:#2563eb; color:#fff; font-size:0.8rem; font-weight:700; padding:0.4rem 0.8rem; border-radius:0.375rem; text-decoration:none;" onmouseover="this.style.background='#1d4ed8';" onmouseout="this.style.background='#2563eb';">
+                                <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-500/20 transition-all active:scale-95">
                                     Bayar Sekarang →
                                 </a>
                             @endif
@@ -83,9 +93,10 @@
                 </div>
             @endforeach
 
-            <div style="margin-top:1rem;">
+            <div class="mt-6">
                 {{ $rentals->links() }}
             </div>
         </div>
     @endif
 </div>
+

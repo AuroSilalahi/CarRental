@@ -1,103 +1,97 @@
-<x-layouts.app :title="$car->brand . ' ' . $car->model . ' - Car Rental'">
-    <div class="container">
-
-        {{-- Breadcrumb --}}
-        <nav style="margin-bottom:1.5rem; font-size:0.875rem; color:#6b7280;">
-            <a href="/" style="color:#1d4ed8; text-decoration:none;">Beranda</a>
-            <span style="margin:0 0.5rem;">/</span>
-            <a href="/cars" style="color:#1d4ed8; text-decoration:none;">Kendaraan</a>
-            <span style="margin:0 0.5rem;">/</span>
-            <span>{{ $car->brand }} {{ $car->model }}</span>
+<x-layouts.app :title="$car->brand . ' ' . $car->model . ' — CarRental'">
+    <div class="mb-6">
+        <nav class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-3">
+            <a href="/" class="hover:text-blue-600 transition-colors">Beranda</a>
+            <span>/</span>
+            <a href="/cars" class="hover:text-blue-600 transition-colors">Katalog Kendaraan</a>
+            <span>/</span>
+            <span class="text-slate-700">{{ $car->brand }} {{ $car->model }}</span>
         </nav>
+    </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start;">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-            {{-- Left: Car Info --}}
-            <div style="background:#fff; border-radius:0.75rem; box-shadow:0 1px 4px rgba(0,0,0,0.08); overflow:hidden;">
+        {{-- Left: Car Info & Image --}}
+        <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-md overflow-hidden">
+            
+            {{-- Car Image --}}
+            <div class="bg-slate-100 aspect-video relative overflow-hidden flex items-center justify-center">
+                @if($car->image_path)
+                    <img src="{{ asset('storage/' . $car->image_path) }}" alt="{{ $car->brand }} {{ $car->model }}" class="w-full h-full object-cover">
+                @else
+                    <span class="text-6xl text-slate-300">🚗</span>
+                @endif
 
-                {{-- Car Image --}}
-                <div style="background:#e5e7eb; aspect-ratio:16/9; overflow:hidden;">
-                    @if($car->image_path)
-                        <img src="{{ asset('storage/' . $car->image_path) }}"
-                             alt="{{ $car->brand }} {{ $car->model }}"
-                             style="width:100%; height:100%; object-fit:cover;">
-                    @else
-                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-size:3rem;">
-                            🚗
+                @if($car->is_luxury_brand)
+                    <span class="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-md flex items-center gap-1">
+                        ✨ Luxury Brand
+                    </span>
+                @endif
+
+                @if($car->is_available)
+                    <span class="absolute top-4 right-4 bg-emerald-500 text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold shadow-md">
+                        ✓ Tersedia
+                    </span>
+                @else
+                    <span class="absolute top-4 right-4 bg-rose-500 text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold shadow-md">
+                        ✕ Tidak Tersedia
+                    </span>
+                @endif
+            </div>
+
+            {{-- Car Details --}}
+            <div class="p-6 sm:p-8">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-md">
+                        {{ $car->type }}
+                    </span>
+                </div>
+
+                <h1 class="text-3xl font-black text-slate-900 mb-3">
+                    {{ $car->brand }} {{ $car->model }}
+                </h1>
+
+                <div class="flex items-baseline gap-2 mb-6 pb-6 border-b border-slate-100">
+                    <span class="text-3xl font-black text-blue-600">
+                        Rp {{ number_format($car->daily_rate_idr, 0, ',', '.') }}
+                    </span>
+                    <span class="text-sm font-semibold text-slate-400">/ hari</span>
+                </div>
+
+                {{-- Specs Table --}}
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between py-2.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Plat Nomor</span>
+                        <span class="font-bold text-slate-900 font-mono tracking-wider">{{ $car->license_plate }}</span>
+                    </div>
+                    <div class="flex justify-between py-2.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Kapasitas Penumpang</span>
+                        <span class="font-bold text-slate-900">{{ $car->passenger_capacity }} Orang</span>
+                    </div>
+                    <div class="flex justify-between py-2.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Warna Unit</span>
+                        <span class="font-bold text-slate-900">{{ $car->colour }}</span>
+                    </div>
+                    <div class="flex justify-between py-2.5 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Tahun Rilis</span>
+                        <span class="font-bold text-slate-900">{{ $car->year }}</span>
+                    </div>
+                    @if($car->is_luxury_brand)
+                        <div class="flex justify-between py-2.5 border-b border-slate-100">
+                            <span class="text-slate-500 font-medium">Luxury Multiplier</span>
+                            <span class="font-bold text-amber-600">{{ $car->luxury_multiplier }}×</span>
                         </div>
                     @endif
                 </div>
-
-                {{-- Car Details --}}
-                <div style="padding:1.5rem;">
-                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; flex-wrap:wrap;">
-                        <h1 style="font-size:1.5rem; font-weight:700; color:#111827;">
-                            {{ $car->brand }} {{ $car->model }}
-                        </h1>
-                        {{-- Availability Badge --}}
-                        @if($car->is_available)
-                            <span style="background:#dcfce7; color:#166534; padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600;">
-                                Tersedia
-                            </span>
-                        @else
-                            <span style="background:#fee2e2; color:#991b1b; padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600;">
-                                Tidak Tersedia
-                            </span>
-                        @endif
-                        {{-- Luxury Badge --}}
-                        @if($car->is_luxury_brand)
-                            <span style="background:#fef3c7; color:#92400e; padding:0.25rem 0.75rem; border-radius:999px; font-size:0.75rem; font-weight:600;">
-                                ✨ Luxury
-                            </span>
-                        @endif
-                    </div>
-
-                    {{-- Daily Rate --}}
-                    <div style="font-size:1.375rem; font-weight:700; color:#1d4ed8; margin-bottom:1.25rem;">
-                        Rp {{ number_format($car->daily_rate_idr, 0, ',', '.') }}
-                        <span style="font-size:0.875rem; font-weight:400; color:#6b7280;">/ hari</span>
-                    </div>
-
-                    {{-- Attributes Grid --}}
-                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-                        <tbody>
-                            <tr style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:0.6rem 0; color:#6b7280; width:45%;">Tipe Kendaraan</td>
-                                <td style="padding:0.6rem 0; font-weight:500; color:#111827;">{{ $car->type }}</td>
-                            </tr>
-                            <tr style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:0.6rem 0; color:#6b7280;">Plat Nomor</td>
-                                <td style="padding:0.6rem 0; font-weight:500; color:#111827; font-family:monospace; letter-spacing:0.05em;">{{ $car->license_plate }}</td>
-                            </tr>
-                            <tr style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:0.6rem 0; color:#6b7280;">Kapasitas Penumpang</td>
-                                <td style="padding:0.6rem 0; font-weight:500; color:#111827;">{{ $car->passenger_capacity }} orang</td>
-                            </tr>
-                            <tr style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:0.6rem 0; color:#6b7280;">Warna</td>
-                                <td style="padding:0.6rem 0; font-weight:500; color:#111827;">{{ $car->colour }}</td>
-                            </tr>
-                            <tr style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:0.6rem 0; color:#6b7280;">Tahun</td>
-                                <td style="padding:0.6rem 0; font-weight:500; color:#111827;">{{ $car->year }}</td>
-                            </tr>
-                            @if($car->is_luxury_brand)
-                            <tr style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:0.6rem 0; color:#6b7280;">Luxury Multiplier</td>
-                                <td style="padding:0.6rem 0; font-weight:500; color:#111827;">{{ $car->luxury_multiplier }}×</td>
-                            </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {{-- Right: Booking Form --}}
-            <div>
-                <livewire:booking-form :car="$car" />
             </div>
 
         </div>
 
+        {{-- Right: Booking Form --}}
+        <div class="lg:col-span-5">
+            <livewire:booking-form :car="$car" />
+        </div>
+
     </div>
 </x-layouts.app>
+

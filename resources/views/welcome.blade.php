@@ -1,45 +1,72 @@
-<x-layouts.app title="Car Rental - Layanan Rental Mobil Terpercaya di Sumatera Utara">
+<x-layouts.app title="Car Rental — Layanan Rental Mobil Terpercaya di Sumatera Utara">
+    
     {{-- Hero Section --}}
-    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color:#ffffff; padding:4rem 1.5rem; border-radius:1rem; margin-bottom:3rem; text-align:center; box-shadow:0 20px 25px -5px rgba(37,99,235,0.25);">
-        <h1 style="font-size:2.5rem; font-weight:900; margin-bottom:1rem; letter-spacing:-0.025em;">
-            Sewa Mobil Impian Anda dengan Mudah & Cepat
-        </h1>
-        <p style="font-size:1.125rem; color:#bfdbfe; max-width:650px; margin:0 auto 2rem auto; line-height:1.6;">
-            Nikmati perjalanan aman dan nyaman di Sumatera Utara dengan armada mobil terawat, harga kompetitif, dan pelayanan profesional 24/7.
-        </p>
-        <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
-            <a href="/cars" style="background:#ffffff; color:#1e3a8a; font-weight:800; padding:0.85rem 2rem; border-radius:0.5rem; text-decoration:none; font-size:1rem; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
-                🚗 Jelajahi Kendaraan
-            </a>
-            @guest
-                <a href="/register" style="background:rgba(255,255,255,0.15); color:#ffffff; font-weight:700; padding:0.85rem 2rem; border-radius:0.5rem; text-decoration:none; font-size:1rem; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.3);">
-                    Daftar Sekarang
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-900 text-white p-8 sm:p-12 lg:p-16 mb-12 shadow-2xl border border-slate-800">
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-3xl mx-auto text-center">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-6 backdrop-blur-sm">
+                ✨ Rental Mobil Sumatera Utara Terlengkap
+            </span>
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-blue-200">
+                Sewa Mobil Impian Anda dengan Cepat & Transparan
+            </h1>
+            <p class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto mb-8 font-medium leading-relaxed">
+                Nikmati perjalanan aman dan nyaman bersama armada mobil terawat, harga terjangkau tanpa biaya tersembunyi, dan layanan responsif 24/7.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="/cars" class="px-8 py-4 rounded-xl font-extrabold text-slate-900 bg-white hover:bg-slate-100 shadow-xl shadow-white/10 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center gap-2">
+                    <span>🚗</span> Jelajahi Kendaraan
                 </a>
-            @endguest
+                @guest
+                    <a href="/register" class="px-8 py-4 rounded-xl font-bold text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:scale-105 active:scale-95 transition-all duration-200">
+                        Daftar Sekarang
+                    </a>
+                @endguest
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        {{-- Task 7.1: Featured Cars Carousel Livewire Component --}}
+    {{-- Featured Cars Carousel --}}
+    <div class="mb-12">
         <livewire:featured-cars-carousel />
-
-        {{-- Features Grid --}}
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:3rem;">
-            <div style="background:#fff; padding:1.75rem; border-radius:0.75rem; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
-                <div style="font-size:2.5rem; margin-bottom:0.75rem;">🛡️</div>
-                <h3 style="font-size:1.125rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Kondisi Terawat & Aman</h3>
-                <p style="color:#64748b; font-size:0.9rem; line-height:1.5;">Seluruh kendaraan diperiksa secara berkala dan siap tempuh jarak jauh dengan jaminan keselamatan.</p>
-            </div>
-            <div style="background:#fff; padding:1.75rem; border-radius:0.75rem; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
-                <div style="font-size:2.5rem; margin-bottom:0.75rem;">⚡</div>
-                <h3 style="font-size:1.125rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Pemesanan Instant</h3>
-                <p style="color:#64748b; font-size:0.9rem; line-height:1.5;">Proses sewa langsung online dengan estimasi harga transparan tanpa biaya tersembunyi.</p>
-            </div>
-            <div style="background:#fff; padding:1.75rem; border-radius:0.75rem; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
-                <div style="font-size:2.5rem; margin-bottom:0.75rem;">💎</div>
-                <h3 style="font-size:1.125rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem;">Pilihan Brand Mewah</h3>
-                <p style="color:#64748b; font-size:0.9rem; line-height:1.5;">Tersedia pilihan mobil luxury brand untuk kebutuhan acara bisnis, pernikahan, atau tamu VIP.</p>
-            </div>
-        </div>
     </div>
+
+    {{-- Key Benefits Grid --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-3xl mb-5 shadow-xs">
+                🛡️
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900 mb-2">Kondisi Terawat & Aman</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Seluruh unit armada rutin diservis secara berkala. Dijamin bersih, dingin, dan siap untuk perjalanan jarak jauh.
+            </p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl mb-5 shadow-xs">
+                ⚡
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900 mb-2">Pemesanan Instant</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Pesan langsung secara online, cek estimasi harga real-time, dan selesaikan pembayaran dengan sistem yang praktis.
+            </p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-3xl mb-5 shadow-xs">
+                💎
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900 mb-2">Pilihan Brand Mewah</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Tersedia pilihan mobil luxury brand dengan multiplier transparan untuk kebutuhan wedding, eksekutif, & VIP.
+            </p>
+        </div>
+
+    </div>
+
 </x-layouts.app>
+

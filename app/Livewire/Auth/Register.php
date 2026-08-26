@@ -20,7 +20,7 @@ class Register extends Component
     #[Validate('required|email|max:255|unique:users,email')]
     public string $email = '';
 
-    #[Validate('required|string|regex:/^(\+62|08)[0-9]{7,12}$/')]
+    #[Validate(['required', 'string', 'regex:/^(\+62|08)[0-9]{7,12}$/'])]
     public string $phone = '';
 
     #[Validate('required|string|min:8|max:64')]

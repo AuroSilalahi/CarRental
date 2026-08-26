@@ -105,7 +105,9 @@ class CarResource extends Resource
                 Components\FileUpload::make('image_path')
                     ->label('Foto Kendaraan')
                     ->image()
+                    ->disk('public')
                     ->directory('cars')
+                    ->visibility('public')
                     ->columnSpanFull(),
             ]);
     }

@@ -1,16 +1,16 @@
-<x-layouts.app title="Profil Saya - Car Rental">
-    <div class="container">
-        <div style="margin-bottom:2rem;">
-            <nav style="font-size:0.875rem; color:#6b7280; margin-bottom:0.5rem;">
-                <a href="/" style="color:#2563eb; text-decoration:none;">Beranda</a>
-                <span style="margin:0 0.5rem;">/</span>
-                <span>Profil Pengguna</span>
-            </nav>
-            <h1 style="font-size:2rem; font-weight:900; color:#0f172a;">
-                Pengaturan Profil & Verifikasi KTP
-            </h1>
-        </div>
-
-        <livewire:user-profile />
+<x-layouts.app title="Profil Saya — CarRental">
+    <div class="mb-8">
+        <nav class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-3">
+            <a href="/" class="hover:text-blue-600 transition-colors">Beranda</a>
+            <span>/</span>
+            <span class="text-slate-700">Profil Pengguna</span>
+        </nav>
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            Pengaturan Profil & Verifikasi KTP
+        </h1>
+        <p class="text-slate-500 text-sm mt-1">Kelola informasi pribadi dan status verifikasi identitas Anda.</p>
     </div>
+
+    <livewire:user-profile />
 </x-layouts.app>
+

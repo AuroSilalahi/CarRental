@@ -1,39 +1,45 @@
-<div style="max-width:420px; margin:3rem auto; background:#ffffff; border-radius:1rem; padding:2rem; box-shadow:0 10px 25px -5px rgba(0,0,0,0.05); border:1px solid #f1f5f9;">
-    <h2 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem; text-align:center;">
-        🔑 Masuk Akun Pelanggan
-    </h2>
-    <p style="color:#64748b; font-size:0.875rem; text-align:center; margin-bottom:1.5rem;">
-        Masukkan email dan kata sandi Anda untuk melanjutkan pemesanan.
-    </p>
+<div class="max-w-md mx-auto my-8 sm:my-12 bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xl">
+    <div class="text-center mb-8">
+        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center text-2xl mb-3 shadow-xs">
+            🔑
+        </div>
+        <h2 class="text-2xl font-black text-slate-900">
+            Masuk Akun Pelanggan
+        </h2>
+        <p class="text-slate-500 text-xs font-medium mt-1">
+            Masukkan email dan kata sandi Anda untuk melanjutkan.
+        </p>
+    </div>
 
     @if($errorMessage)
-        <div style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:0.75rem 1rem; border-radius:0.375rem; margin-bottom:1rem; font-size:0.875rem;">
-            ⚠️ {{ $errorMessage }}
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl mb-6 text-xs font-bold flex items-center gap-2">
+            <span>⚠️</span> {{ $errorMessage }}
         </div>
     @endif
 
-    <form wire:submit="login">
+    <form wire:submit="login" class="space-y-5">
         {{-- Email --}}
-        <div style="margin-bottom:1rem;">
-            <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:0.25rem;">Alamat Email</label>
-            <input type="email" wire:model="email" placeholder="budi@example.com" style="width:100%; padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:0.375rem; font-size:0.875rem;">
-            @error('email') <span style="color:#ef4444; font-size:0.75rem; display:block; margin-top:0.25rem;">{{ $message }}</span> @enderror
+        <div>
+            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Alamat Email</label>
+            <input type="email" wire:model="email" placeholder="budi@example.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            @error('email') <span class="text-rose-600 text-xs font-bold block mt-1">{{ $message }}</span> @enderror
         </div>
 
         {{-- Password --}}
-        <div style="margin-bottom:1.5rem;">
-            <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:0.25rem;">Kata Sandi</label>
-            <input type="password" wire:model="password" style="width:100%; padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:0.375rem; font-size:0.875rem;">
-            @error('password') <span style="color:#ef4444; font-size:0.75rem; display:block; margin-top:0.25rem;">{{ $message }}</span> @enderror
+        <div>
+            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Kata Sandi</label>
+            <input type="password" wire:model="password" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            @error('password') <span class="text-rose-600 text-xs font-bold block mt-1">{{ $message }}</span> @enderror
         </div>
 
         {{-- Submit --}}
-        <button type="submit" style="width:100%; background:#2563eb; color:#fff; font-weight:700; padding:0.75rem; border-radius:0.375rem; border:none; cursor:pointer; font-size:1rem; transition:background 0.2s;" onmouseover="this.style.background='#1d4ed8';" onmouseout="this.style.background='#2563eb';">
-            Masuk Sekarang
+        <button type="submit" class="w-full py-3.5 px-6 rounded-xl font-extrabold text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 active:scale-95 transition-all cursor-pointer">
+            Masuk Sekarang →
         </button>
     </form>
 
-    <p style="text-align:center; margin-top:1.5rem; font-size:0.875rem; color:#64748b;">
-        Belum punya akun? <a href="/register" style="color:#2563eb; font-weight:700; text-decoration:none;">Daftar di sini</a>
+    <p class="text-center mt-6 text-xs text-slate-500">
+        Belum punya akun? <a href="/register" class="text-blue-600 font-extrabold hover:underline">Daftar di sini</a>
     </p>
 </div>
+
