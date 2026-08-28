@@ -45,6 +45,28 @@ class Car extends Model
     }
 
     /**
+     * Get public URL for car image (S3 public URL or local asset).
+     */
+    public function getImageUrlAttribute(): string
+    {
+        if (! $this->image_path) {
+            return asset('images/default-car.png');
+        }
+
+        if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
+            return $this->image_path;
+        }
+
+        $disk = config('filesystems.default', 'local');
+
+        if ($disk === 's3') {
+            return \Illuminate\Support\Facades\Storage::disk('s3')->url($this->image_path);
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image_path);
+    }
+
+    /**
      * Get the rentals for this car.
      */
     public function rentals(): HasMany

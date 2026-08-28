@@ -87,6 +87,38 @@ class PaymentService
     }
 
     /**
+     * Submit proof of payment for admin verification.
+     *
+     * Updates payment record with proof_path, payment_method, transaction_reference,
+     * and sets status to pending (awaiting admin review).
+     *
+     * @param  Rental              $rental
+     * @param  array<string, mixed> $data
+     * @return Payment
+     *
+     * @throws PaymentAlreadyPaidException if the Payment already has status = paid
+     */
+    public function submitPaymentProof(Rental $rental, array $data): Payment
+    {
+        /** @var Payment $payment */
+        $payment = Payment::where('rental_id', $rental->id)->firstOrFail();
+
+        if ($payment->status === PaymentStatus::Paid) {
+            throw new PaymentAlreadyPaidException();
+        }
+
+        return DB::transaction(function () use ($payment, $data): Payment {
+            $payment->payment_method        = $data['payment_method'] ?? 'Bank Transfer';
+            $payment->proof_path            = $data['proof_path'] ?? null;
+            $payment->transaction_reference = $data['transaction_reference'] ?? null;
+            $payment->status                 = PaymentStatus::Pending;
+            $payment->save();
+
+            return $payment;
+        });
+    }
+
+    /**
      * Expire the given payment.
      *
      * Within a DB transaction:

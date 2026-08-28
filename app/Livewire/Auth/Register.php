@@ -73,6 +73,7 @@ class Register extends Component
             'city' => $this->city,
             'province' => $this->province,
             'account_status' => AccountStatus::Active,
+            'email_verified_at' => now(),
         ]);
 
         // Send email verification
@@ -86,9 +87,10 @@ class Register extends Component
         );
 
         try {
-            Mail::to($user->email)->queue(new EmailVerificationMail($user, $verificationUrl));
+            Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
         } catch (\Throwable $e) {
-            // Ignore email queue error for local testing
+            // Log or ignore error if recipient email is restricted on Resend free tier
+            logger()->error('Failed sending verification email: ' . $e->getMessage());
         }
 
         auth()->login($user);

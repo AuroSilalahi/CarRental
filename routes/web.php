@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/payments/{rental}/pay', [PaymentController::class, 'pay'])
         ->name('payments.pay');
+
+    Route::post('/payments/{rental}/proof', [PaymentController::class, 'submitProof'])
+        ->name('payments.proof');
 });
 
 

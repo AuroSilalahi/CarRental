@@ -38,8 +38,12 @@
 
                             {{-- Status Badge --}}
                             @php
+                                $rawStatus = $rental->status->value ?? $rental->status;
+                                $paymentStatus = $rental->payment ? ($rental->payment->status->value ?? $rental->payment->status) : 'unpaid';
+                                $hasProof = $rental->payment && !empty($rental->payment->proof_path);
+
                                 $statusColors = [
-                                    'pending'   => 'bg-amber-100 text-amber-800 border-amber-200',
+                                    'pending'   => $hasProof ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-amber-100 text-amber-800 border-amber-200',
                                     'confirmed' => 'bg-blue-100 text-blue-800 border-blue-200',
                                     'active'    => 'bg-emerald-100 text-emerald-800 border-emerald-200',
                                     'completed' => 'bg-slate-100 text-slate-700 border-slate-200',
@@ -47,14 +51,13 @@
                                     'expired'   => 'bg-gray-100 text-gray-700 border-gray-200',
                                 ];
                                 $statusLabels = [
-                                    'pending'   => 'Menunggu Pembayaran',
+                                    'pending'   => $hasProof ? '⏳ Menunggu Verifikasi Admin' : 'Menunggu Pembayaran',
                                     'confirmed' => 'Dikonfirmasi',
                                     'active'    => 'Aktif Berjalan',
                                     'completed' => 'Selesai',
                                     'cancelled' => 'Dibatalkan',
                                     'expired'   => 'Kadaluwarsa',
                                 ];
-                                $rawStatus = $rental->status->value ?? $rental->status;
                                 $badgeClass = $statusColors[$rawStatus] ?? 'bg-slate-100 text-slate-700 border-slate-200';
                                 $badgeLabel = $statusLabels[$rawStatus] ?? ucfirst($rawStatus);
                             @endphp
@@ -84,9 +87,15 @@
                             </a>
 
                             @if(($rental->status->value ?? $rental->status) === 'pending')
-                                <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-500/20 transition-all active:scale-95">
-                                    Bayar Sekarang →
-                                </a>
+                                @if($hasProof)
+                                    <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-md shadow-amber-500/20 transition-all active:scale-95">
+                                        Lihat Bukti Transfer →
+                                    </a>
+                                @else
+                                    <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-500/20 transition-all active:scale-95">
+                                        Bayar / Upload Bukti →
+                                    </a>
+                                @endif
                             @endif
                         </div>
                     </div>

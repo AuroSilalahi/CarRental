@@ -119,18 +119,16 @@ class RentalServiceTest extends TestCase
     // -------------------------------------------------------------------------
 
     #[Test]
-    public function create_booking_throws_if_email_not_verified(): void
+    public function create_booking_allows_unverified_email_in_simplified_flow(): void
     {
         $customer = $this->unverifiedCustomer();
         $car      = $this->car();
         $data     = $this->bookingData($car);
 
-        $this->expectException(EmailNotVerifiedException::class);
+        $rental = $this->service->createBooking($customer, $data);
 
-        $this->service->createBooking($customer, $data);
-
-        // No rental should be created
-        $this->assertDatabaseCount('rentals', 0);
+        $this->assertNotNull($rental);
+        $this->assertEquals($customer->id, $rental->customer_id);
     }
 
     // -------------------------------------------------------------------------

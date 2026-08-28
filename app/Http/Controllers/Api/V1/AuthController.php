@@ -35,6 +35,7 @@ class AuthController extends Controller
             'city'           => $request->city,
             'province'       => $request->province,
             'account_status' => AccountStatus::Active,
+            'email_verified_at' => now(),
         ]);
 
         // Dispatch verification email via queue

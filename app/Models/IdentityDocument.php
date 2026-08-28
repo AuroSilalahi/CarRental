@@ -42,6 +42,24 @@ class IdentityDocument extends Model
     }
 
     /**
+     * Get secure temporary signed URL (or local URL) for identity document.
+     */
+    public function getFileUrlAttribute(): ?string
+    {
+        if (! $this->file_path) {
+            return null;
+        }
+
+        $disk = config('filesystems.default', 'local');
+
+        if ($disk === 's3') {
+            return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->file_path, now()->addMinutes(15));
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+    }
+
+    /**
      * Get the customer (user) that owns this identity document.
      */
     public function customer(): BelongsTo

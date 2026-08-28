@@ -6,6 +6,7 @@ use App\Exceptions\PaymentAlreadyPaidException;
 use App\Jobs\SendPaymentConfirmationEmail;
 use App\Models\Rental;
 use App\Services\PaymentService;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -38,6 +39,41 @@ class PaymentController extends Controller
         $days = max(1, $days);
 
         return view('payments.show', compact('rental', 'days'));
+    }
+
+    /**
+     * Process payment proof submission.
+     */
+    public function submitProof(Request $request, Rental $rental): RedirectResponse
+    {
+        if (auth()->id() !== $rental->customer_id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'payment_method' => 'required|string|max:50',
+            'transaction_reference' => 'nullable|string|max:100',
+            'proof_file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        try {
+            $disk = config('filesystems.default', 'local');
+            $path = $request->file('proof_file')->store("payments/proofs/{$rental->id}", $disk);
+
+            $this->paymentService->submitPaymentProof($rental, [
+                'payment_method' => $request->payment_method,
+                'transaction_reference' => $request->transaction_reference,
+                'proof_path' => $path,
+            ]);
+
+            return redirect()
+                ->route('payments.show', $rental->id)
+                ->with('success', 'Bukti pembayaran berhasil diunggah! Mohon menunggu konfirmasi Admin.');
+        } catch (PaymentAlreadyPaidException $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Rental ini telah lunas dibayar.');
+        }
     }
 
     /**

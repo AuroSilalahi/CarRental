@@ -54,12 +54,18 @@ class PaymentResource extends Resource
                     ->label('Metode Bayar')
                     ->badge(),
 
+                Tables\Columns\TextColumn::make('transaction_reference')
+                    ->label('No. Referensi')
+                    ->placeholder('-')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->color(fn (PaymentStatus|string $state): string => match ($state instanceof PaymentStatus ? $state->value : $state) {
                         'paid' => 'success',
-                        'unpaid', 'pending' => 'warning',
+                        'pending' => 'warning',
+                        'unpaid' => 'gray',
                         'expired', 'failed' => 'danger',
                         default => 'gray',
                     }),
@@ -69,30 +75,41 @@ class PaymentResource extends Resource
                     ->label('Status Pembayaran')
                     ->options([
                         'paid' => 'Paid (Lunas)',
+                        'pending' => 'Pending (Perlu Verifikasi)',
                         'unpaid' => 'Unpaid',
-                        'pending' => 'Pending',
                         'expired' => 'Expired',
                         'failed' => 'Failed',
                     ]),
             ])
             ->actions([
-                Action::make('recordManualPayment')
-                    ->label('Catat Pembayaran Manual')
+                Action::make('viewProof')
+                    ->label('Lihat Bukti S3')
+                    ->icon('heroicon-o-document-magnifying-glass')
+                    ->color('info')
+                    ->visible(fn (Payment $record) => !empty($record->proof_path))
+                    ->url(fn (Payment $record) => $record->proof_url)
+                    ->openUrlInNewTab(),
+
+                Action::make('approvePayment')
+                    ->label('Setujui Pembayaran')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (Payment $record) => ($record->status->value ?? $record->status) !== 'paid')
+                    ->requiresConfirmation()
                     ->action(function (Payment $record) {
                         /** @var PaymentService $paymentService */
                         $paymentService = app(PaymentService::class);
 
                         try {
                             $paymentService->recordPayment($record->rental, [
-                                'payment_method' => 'manual',
+                                'payment_method' => $record->payment_method ?? 'manual',
                             ]);
 
+                            \App\Jobs\SendPaymentConfirmationEmail::dispatch($record->rental->fresh(['customer', 'car', 'payment']));
+
                             Notification::make()
-                                ->title('Pembayaran Berhasil Dicatat')
-                                ->body('Status pembayaran dan rental telah berhasil diperbarui ke Lunas & Dikonfirmasi.')
+                                ->title('Pembayaran Disetujui & Dikonfirmasi')
+                                ->body('Email konfirmasi otomatis telah dikirim ke pelanggan via Resend.')
                                 ->success()
                                 ->send();
                         } catch (PaymentAlreadyPaidException $e) {
@@ -102,6 +119,22 @@ class PaymentResource extends Resource
                                 ->danger()
                                 ->send();
                         }
+                    }),
+
+                Action::make('rejectPayment')
+                    ->label('Tolak Bukti')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn (Payment $record) => ($record->status->value ?? $record->status) === 'pending')
+                    ->requiresConfirmation()
+                    ->action(function (Payment $record) {
+                        $record->update(['status' => PaymentStatus::Failed]);
+
+                        Notification::make()
+                            ->title('Bukti Pembayaran Ditolak')
+                            ->body('Status pembayaran diperbarui ke Failed.')
+                            ->warning()
+                            ->send();
                     }),
             ]);
     }

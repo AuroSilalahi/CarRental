@@ -84,6 +84,38 @@ class CustomerResource extends Resource
                     }),
             ])
             ->actions([
+                Action::make('viewDocument')
+                    ->label('Lihat KTP S3')
+                    ->icon('heroicon-o-document-magnifying-glass')
+                    ->color('info')
+                    ->visible(function (User $record) {
+                        $doc = $record->identityDocuments()->latest()->first();
+                        return $doc && !empty($doc->file_path);
+                    })
+                    ->url(function (User $record) {
+                        $doc = $record->identityDocuments()->latest()->first();
+                        return $doc ? $doc->file_url : null;
+                    })
+                    ->openUrlInNewTab(),
+
+                Action::make('viewCustomerDetails')
+                    ->label('Detail Pelanggan')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('gray')
+                    ->modalHeading(fn (User $record) => 'Detail Pelanggan — ' . $record->name)
+                    ->modalContent(function (User $record) {
+                        $doc = $record->identityDocuments()->latest()->first();
+                        $docUrl = $doc ? $doc->file_url : null;
+
+                        return view('filament.components.customer-detail-modal', [
+                            'customer' => $record,
+                            'document' => $doc,
+                            'documentUrl' => $docUrl,
+                        ]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
+
                 Action::make('approveIdentity')
                     ->label('Setujui KTP')
                     ->icon('heroicon-o-check-circle')
@@ -104,7 +136,7 @@ class CustomerResource extends Resource
                             }
 
                             DB::afterCommit(function () use ($record) {
-                                Mail::to($record->email)->queue(new IdentityApprovedMail($record));
+                                Mail::to($record->email)->send(new IdentityApprovedMail($record));
                             });
                         });
 
@@ -153,7 +185,7 @@ class CustomerResource extends Resource
                             }
 
                             DB::afterCommit(function () use ($record, $reason) {
-                                Mail::to($record->email)->queue(new IdentityRejectedMail($record, $reason));
+                                Mail::to($record->email)->send(new IdentityRejectedMail($record, $reason));
                             });
                         });
 

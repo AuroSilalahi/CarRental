@@ -21,6 +21,8 @@ class Payment extends Model
         'amount_idr',
         'status',
         'payment_method',
+        'proof_path',
+        'transaction_reference',
         'paid_at',
         'expires_at',
     ];
@@ -37,6 +39,24 @@ class Payment extends Model
             'paid_at'    => 'datetime',
             'expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get secure temporary signed URL (or local URL) for payment proof.
+     */
+    public function getProofUrlAttribute(): ?string
+    {
+        if (! $this->proof_path) {
+            return null;
+        }
+
+        $disk = config('filesystems.default', 'local');
+
+        if ($disk === 's3') {
+            return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->proof_path, now()->addMinutes(15));
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->proof_path);
     }
 
     /**

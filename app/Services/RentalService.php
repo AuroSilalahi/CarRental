@@ -41,10 +41,7 @@ class RentalService
      */
     public function createBooking(User $customer, array $data): Rental
     {
-        // 1. Verify email
-        if (! $customer->hasVerifiedEmail()) {
-            throw new EmailNotVerifiedException();
-        }
+        // Email verification bypassed for simplified Admin-only KTP verification workflow.
 
         $car    = is_object($data['car_id']) ? $data['car_id'] : \App\Models\Car::findOrFail($data['car_id']);
         $start  = Carbon::parse($data['start_date'])->startOfDay();
