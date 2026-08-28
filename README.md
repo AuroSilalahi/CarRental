@@ -29,14 +29,14 @@
 
 | Component | Technology / Library |
 | :--- | :--- |
-| **Backend Core** | **Laravel 11** (PHP 8.2+) |
-| **Reactive Frontend** | **Livewire 3** + Blade Templating + **Tailwind CSS** |
-| **Admin Panel** | **Filament v3** Admin Suite |
+| **Backend Core** | **Laravel 13.8** (PHP 8.3+) |
+| **Reactive Frontend** | **Livewire 4.3** + Blade Templating + **Tailwind CSS** |
+| **Admin Panel** | **Filament 5.7** Admin Suite |
 | **Cloud Storage** | **AWS S3** Object Storage (`league/flysystem-aws-s3-v3` with 15-min secure presigned URLs) |
-| **API Subsystem** | **Laravel Sanctum** (REST API v1 Endpoints) |
+| **API Subsystem** | **Laravel Sanctum 4.3** (REST API v1 Endpoints) |
 | **Database** | **MySQL** / MariaDB (Seeded with 38 Indonesian Provinces & Cities) |
 | **Email Gateway** | Resend API / Log Driver Integration |
-| **Test Suite** | **PHPUnit** (185 Automated Unit & Feature Tests) |
+| **Test Suite** | **PHPUnit 12** (185 Automated Unit & Feature Tests) |
 
 ---
 
