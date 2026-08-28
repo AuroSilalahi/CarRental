@@ -159,6 +159,29 @@ class RentalService
     }
 
     /**
+     * Hand over keys and record payment at office.
+     * Transitions rental status to Active and payment status to Paid.
+     */
+    public function checkInAndPayAtOffice(Rental $rental, array $paymentData = []): void
+    {
+        DB::transaction(function () use ($rental, $paymentData) {
+            $payment = $rental->payment;
+            if ($payment) {
+                $payment->update([
+                    'status' => PaymentStatus::Paid,
+                    'payment_method' => $paymentData['payment_method'] ?? 'Bayar di Kantor (Cash/EDC)',
+                    'paid_at' => now(),
+                ]);
+            }
+
+            $rental->status = RentalStatus::Active;
+            $rental->save();
+
+            $this->appendStatusLog($rental, RentalStatus::Active, auth()->id(), 'Serah terima kunci & bayar di kantor');
+        });
+    }
+
+    /**
      * Generate a unique reference number in the format RNT-YYYYMMDD-XXXXX.
      *
      * XXXXX is a zero-padded random number (00001–99999). The uniqueness

@@ -88,29 +88,53 @@ class RentalResource extends Resource
                     ]),
             ])
             ->actions([
-                Action::make('confirmRental')
-                    ->label('Konfirmasi')
-                    ->icon('heroicon-o-check')
+                Action::make('checkInAndPayAtOffice')
+                    ->label('Bayar & Serahkan Kunci di Kantor')
+                    ->icon('heroicon-o-key')
                     ->color('success')
-                    ->visible(fn (Rental $record) => ($record->status->value ?? $record->status) === 'pending')
+                    ->visible(fn (Rental $record) => in_array($record->status->value ?? $record->status, ['pending', 'confirmed']))
+                    ->form([
+                        \Filament\Forms\Components\Select::make('payment_method')
+                            ->label('Metode Pembayaran di Kantor')
+                            ->options([
+                                'Tunai / Cash di Kantor' => 'Tunai / Cash di Kantor',
+                                'EDC Kartu Kredit / Debit' => 'EDC Kartu Kredit / Debit',
+                                'Bank Transfer Jago / BCA' => 'Bank Transfer Jago / BCA',
+                                'QRIS Standee Kantor' => 'QRIS Standee Kantor',
+                            ])
+                            ->default('Tunai / Cash di Kantor')
+                            ->required(),
+                    ])
+                    ->action(function (Rental $record, array $data) {
+                        /** @var RentalService $rentalService */
+                        $rentalService = app(RentalService::class);
+                        $rentalService->checkInAndPayAtOffice($record, $data);
+
+                        Notification::make()
+                            ->title('Serah Terima Kunci & Pembayaran Berhasil')
+                            ->body('Status rental diperbarui ke AKTIF. Pelanggan telah menerima kendaraan.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('completeRentalReturn')
+                    ->label('Terima Pengembalian Mobil (Selesai)')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('primary')
+                    ->visible(fn (Rental $record) => ($record->status->value ?? $record->status) === 'active')
+                    ->requiresConfirmation()
+                    ->modalHeading('Terima Pengembalian Kendaraan')
+                    ->modalDescription('Apakah kendaraan telah dikembalikan dan diperiksa kondisinya oleh tim kantor?')
                     ->action(function (Rental $record) {
                         /** @var RentalService $rentalService */
                         $rentalService = app(RentalService::class);
-                        try {
-                            $rentalService->confirmRental($record);
+                        $rentalService->completeRental($record);
 
-                            Notification::make()
-                                ->title('Berhasil Konfirmasi')
-                                ->body('Pemesanan rental telah dikonfirmasi.')
-                                ->success()
-                                ->send();
-                        } catch (CarNotAvailableException $e) {
-                            Notification::make()
-                                ->title('Gagal Konfirmasi')
-                                ->body('Mobil tidak tersedia pada tanggal tersebut.')
-                                ->danger()
-                                ->send();
-                        }
+                        Notification::make()
+                            ->title('Rental Selesai')
+                            ->body('Mobil telah dikembalikan. Availability kendaraan telah dipulihkan untuk sewa berikutnya.')
+                            ->success()
+                            ->send();
                     }),
 
                 Action::make('cancelRental')
