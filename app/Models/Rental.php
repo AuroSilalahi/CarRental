@@ -26,6 +26,7 @@ class Rental extends Model
         'end_date',
         'pickup_location',
         'return_location',
+        'destination',
         'total_cost_idr',
         'status',
     ];

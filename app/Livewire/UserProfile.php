@@ -107,7 +107,8 @@ class UserProfile extends Component
         };
 
         $disk = config('filesystems.default', 'local');
-        $path = $this->ktpDocument->store('identity-documents', $disk);
+        $filename = "ktp-user-{$user->id}-" . time() . ".{$extension}";
+        $path = $this->ktpDocument->storeAs('identity-documents/' . $user->id, $filename, $disk);
 
         IdentityDocument::create([
             'customer_id' => $user->id,

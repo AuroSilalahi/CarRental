@@ -34,26 +34,18 @@ class PaymentServiceTest extends TestCase
      * Requirements: 8.2, 8.6
      */
     #[Test]
-    public function it_creates_a_payment_with_unpaid_status_and_24h_expiry(): void
+    public function it_creates_a_payment_with_unpaid_status_for_office_payment(): void
     {
         $rental = Rental::factory()->pending()->create();
 
-        $before  = now();
         $payment = $this->service->initiatePayment($rental);
-        $after   = now()->addHours(24);
 
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertTrue($payment->exists);
         $this->assertSame(PaymentStatus::Unpaid, $payment->status);
         $this->assertSame($rental->total_cost_idr, $payment->amount_idr);
         $this->assertSame($rental->id, $payment->rental_id);
-
-        // expires_at should be approximately now() + 24 hours
-        $this->assertNotNull($payment->expires_at);
-        $this->assertTrue(
-            $payment->expires_at->between($before->addHours(24)->subMinute(), $after->addMinute()),
-            "expires_at ({$payment->expires_at}) should be ~24 hours from now"
-        );
+        $this->assertNull($payment->expires_at);
     }
 
     /**

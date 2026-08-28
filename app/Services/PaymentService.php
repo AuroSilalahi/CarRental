@@ -33,7 +33,7 @@ class PaymentService
             'rental_id'  => $rental->id,
             'amount_idr' => $rental->total_cost_idr,
             'status'     => PaymentStatus::Unpaid,
-            'expires_at' => now()->addHours(24),
+            'expires_at' => null,
         ]);
     }
 

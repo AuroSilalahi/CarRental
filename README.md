@@ -47,7 +47,7 @@
 - 🪪 **KTP Identity Verification (KYC)**: Upload KTP document with live status feedback (*Pending Approval: 5–10 minutes*).
 - 🚗 **Interactive Vehicle Catalog**: Search and filter by brand, vehicle type (City Car, SUV, MPV, Sedan), capacity, and luxury tier.
 - 🧮 **Real-time Price Estimator**: Calculates total cost instantly based on selected dates and luxury brand multipliers.
-- 📅 **H-1 Advance Reservation**: Booking form enforces a minimum H-1 start date for office preparation.
+- 📅 **H+1 Advance Reservation**: Booking form enforces a minimum H+1 start date for office preparation.
 - 🏢 **Fixed Office Pickup & Return**: Clear instructions specifying pickup and drop-off at **Kantor Utama (Jl. Pemuda No. 1, Medan)** with dedicated destination purpose input.
 - 📋 **My Booking History (`/my-rentals`)**: View past & active bookings with an **Interactive Detail Popup Modal**.
 
@@ -127,7 +127,7 @@ erDiagram
 
 ### 2️⃣ Booking & Vehicle Retrieval Lifecycle
 ```
-[Customer Selects Car & Dates (Min H-1)] ➔ [Enters Destination] ➔ [Submit Reservation]
+[Customer Selects Car & Dates (Min H+1)] ➔ [Enters Destination] ➔ [Submit Reservation]
                                                                         │
                                                                         ▼
                                                          [Customer Visits Office]

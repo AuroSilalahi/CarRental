@@ -63,8 +63,9 @@ class RentalService
                 'car_id'           => $car->id,
                 'start_date'       => $start->toDateString(),
                 'end_date'         => $end->toDateString(),
-                'pickup_location'  => $data['pickup_location'],
-                'return_location'  => $data['return_location'],
+                'pickup_location'  => $data['pickup_location'] ?? 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)',
+                'return_location'  => $data['return_location'] ?? 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)',
+                'destination'      => $data['destination'] ?? null,
                 'total_cost_idr'   => $totalCost,
                 'status'           => RentalStatus::Pending,
             ]);
@@ -73,7 +74,7 @@ class RentalService
                 'rental_id'  => $rental->id,
                 'amount_idr' => $totalCost,
                 'status'     => PaymentStatus::Unpaid,
-                'expires_at' => now()->addHours(24),
+                'expires_at' => null,
             ]);
 
             $this->appendStatusLog($rental, RentalStatus::Pending);
@@ -83,17 +84,22 @@ class RentalService
     }
 
     /**
-     * Confirm a rental.
+     * Confirm a pending rental.
      *
-     * Re-checks car availability (excluding the current rental) before
-     * updating status to Confirmed and appending a status log entry.
-     * The Car's `is_available` flag is NOT toggled — availability is
-     * date-range based via AvailabilityService.
+     * Only rentals with status Pending can be confirmed.
      *
      * @throws CarNotAvailableException if a conflicting rental now exists
+     * @throws RentalStatusConflictException if rental status is not Pending
      */
     public function confirmRental(Rental $rental): void
     {
+        $status = $rental->status instanceof RentalStatus ? $rental->status : RentalStatus::from($rental->status);
+        if ($status !== RentalStatus::Pending) {
+            throw new RentalStatusConflictException(
+                "Cannot confirm a rental with status '{$status->value}'."
+            );
+        }
+
         $start = Carbon::parse($rental->start_date)->startOfDay();
         $end   = Carbon::parse($rental->end_date)->startOfDay();
 
@@ -112,26 +118,22 @@ class RentalService
     /**
      * Cancel a rental.
      *
-     * Only rentals with status Confirmed or Active may be cancelled.
-     * Appends a status log entry. Car `is_available` flag is not touched
-     * (availability is date-range based).
+     * Only rentals with status Pending or Confirmed may be cancelled.
      *
-     * @throws RentalStatusConflictException if the rental status is not Confirmed or Active
+     * @throws RentalStatusConflictException if the rental status is not Pending or Confirmed
      */
     public function cancelRental(Rental $rental): void
     {
-        if (! in_array($rental->status, [RentalStatus::Confirmed, RentalStatus::Active], true)) {
+        $status = $rental->status instanceof RentalStatus ? $rental->status : RentalStatus::from($rental->status);
+        if (! in_array($status, [RentalStatus::Pending, RentalStatus::Confirmed], true)) {
             throw new RentalStatusConflictException(
-                "Cannot cancel a rental with status '{$rental->status->value}'."
+                "Cannot cancel a rental with status '{$status->value}'."
             );
         }
 
         DB::transaction(function () use ($rental) {
             $rental->status = RentalStatus::Cancelled;
             $rental->save();
-
-            // Release car availability back to office
-            $rental->car->update(['is_available' => true]);
 
             $this->appendStatusLog($rental, RentalStatus::Cancelled);
         });
@@ -140,16 +142,16 @@ class RentalService
     /**
      * Complete a rental upon physical vehicle return to office.
      *
-     * Only rentals with status Confirmed or Active may be completed.
-     * Marks car as retrieved back at office (is_available = true).
+     * Only rentals with status Active may be completed.
      *
-     * @throws RentalStatusConflictException if the rental status is not Confirmed or Active
+     * @throws RentalStatusConflictException if the rental status is not Active
      */
     public function completeRental(Rental $rental): void
     {
-        if (! in_array($rental->status, [RentalStatus::Confirmed, RentalStatus::Active], true)) {
+        $status = $rental->status instanceof RentalStatus ? $rental->status : RentalStatus::from($rental->status);
+        if ($status !== RentalStatus::Active) {
             throw new RentalStatusConflictException(
-                "Cannot complete a rental with status '{$rental->status->value}'."
+                "Cannot complete a rental with status '{$status->value}'."
             );
         }
 
@@ -157,22 +159,26 @@ class RentalService
             $rental->status = RentalStatus::Completed;
             $rental->save();
 
-            // Mark car as safely returned to office and ready for new rentals
-            $rental->car->update(['is_available' => true]);
-
             $this->appendStatusLog($rental, RentalStatus::Completed);
         });
     }
 
     /**
      * Hand over keys and record payment at office.
-     * Transitions rental status to Active and payment status to Paid.
+     * Only rentals with status Confirmed can be activated.
+     *
+     * @throws RentalStatusConflictException if the rental status is not Confirmed
      */
     public function checkInAndPayAtOffice(Rental $rental, array $paymentData = []): void
     {
+        $status = $rental->status instanceof RentalStatus ? $rental->status : RentalStatus::from($rental->status);
+        if ($status !== RentalStatus::Confirmed) {
+            throw new RentalStatusConflictException(
+                "Cannot activate or record payment for a rental with status '{$status->value}'."
+            );
+        }
+
         DB::transaction(function () use ($rental, $paymentData) {
-            // Mark car as currently on rent (unavailable)
-            $rental->car->update(['is_available' => false]);
             $payment = $rental->payment;
             if ($payment) {
                 $payment->update([

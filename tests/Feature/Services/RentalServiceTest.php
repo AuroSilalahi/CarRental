@@ -103,7 +103,7 @@ class RentalServiceTest extends TestCase
         ]);
         $payment = $rental->payment()->first();
         $this->assertNotNull($payment);
-        $this->assertTrue($payment->expires_at->greaterThan(now()->addHours(23)));
+        $this->assertNull($payment->expires_at);
 
         // Status log appended
         $this->assertDatabaseHas('rental_status_logs', [
@@ -241,14 +241,13 @@ class RentalServiceTest extends TestCase
     // -------------------------------------------------------------------------
 
     #[Test]
-    public function cancel_rental_throws_if_status_is_pending(): void
+    public function cancel_rental_throws_if_status_is_completed(): void
     {
         $customer = $this->verifiedCustomer();
         $car      = $this->car();
         $rental   = $this->service->createBooking($customer, $this->bookingData($car));
 
-        // Status is Pending — not cancellable via cancelRental()
-        $this->assertEquals(RentalStatus::Pending, $rental->status);
+        $rental->update(['status' => RentalStatus::Completed]);
 
         $this->expectException(RentalStatusConflictException::class);
 
@@ -266,7 +265,7 @@ class RentalServiceTest extends TestCase
         $car      = $this->car();
         $rental   = $this->service->createBooking($customer, $this->bookingData($car));
 
-        $rental->update(['status' => RentalStatus::Confirmed]);
+        $rental->update(['status' => RentalStatus::Active]);
 
         $this->service->completeRental($rental->fresh());
 

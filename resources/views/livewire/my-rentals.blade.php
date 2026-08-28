@@ -73,7 +73,7 @@
                         <div class="text-xs font-semibold text-slate-500 flex flex-wrap gap-4 mt-2">
                             <span>📅 {{ $rental->start_date->format('d M Y') }} – {{ $rental->end_date->format('d M Y') }}</span>
                             <span>📍 Pengambilan: Kantor Utama (Jl. Pemuda No. 1, Medan)</span>
-                            <span>🎯 Destinasi: {{ Str::limit($rental->pickup_location, 30) }}</span>
+                            <span>🎯 Destinasi: {{ Str::limit($rental->destination ?? $rental->pickup_location, 30) }}</span>
                         </div>
                     </div>
 
@@ -159,7 +159,7 @@
                     </div>
                     <div class="flex justify-between py-1.5">
                         <span class="text-slate-400 font-bold">Tujuan / Destinasi</span>
-                        <span class="font-bold text-blue-600 text-right">{{ $selectedRental->pickup_location }}</span>
+                        <span class="font-bold text-blue-600 text-right">{{ $selectedRental->destination ?? $selectedRental->pickup_location }}</span>
                     </div>
                 </div>
 

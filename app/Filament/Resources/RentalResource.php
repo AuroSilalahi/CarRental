@@ -56,6 +56,10 @@ class RentalResource extends Resource
                     ->date('d M Y')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('destination')
+                    ->label('Tujuan / Destinasi')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('total_cost_idr')
                     ->label('Total IDR')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format((float) $state, 0, ',', '.'))
@@ -88,11 +92,28 @@ class RentalResource extends Resource
                     ]),
             ])
             ->actions([
+                Action::make('confirmRental')
+                    ->label('Konfirmasi Pemesanan')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('info')
+                    ->visible(fn (Rental $record) => ($record->status->value ?? $record->status) === 'pending')
+                    ->action(function (Rental $record) {
+                        /** @var RentalService $rentalService */
+                        $rentalService = app(RentalService::class);
+                        $rentalService->confirmRental($record);
+
+                        Notification::make()
+                            ->title('Pemesanan Dikonfirmasi')
+                            ->body('Status pemesanan kini Dikonfirmasi. Menunggu kedatangan pelanggan di kantor.')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('checkInAndPayAtOffice')
                     ->label('Bayar & Serahkan Kunci di Kantor')
                     ->icon('heroicon-o-key')
                     ->color('success')
-                    ->visible(fn (Rental $record) => in_array($record->status->value ?? $record->status, ['pending', 'confirmed']))
+                    ->visible(fn (Rental $record) => ($record->status->value ?? $record->status) === 'confirmed')
                     ->form([
                         \Filament\Forms\Components\Select::make('payment_method')
                             ->label('Metode Pembayaran di Kantor')
@@ -121,7 +142,7 @@ class RentalResource extends Resource
                     ->label('Terima Pengembalian Mobil (Selesai)')
                     ->icon('heroicon-o-check-badge')
                     ->color('primary')
-                    ->visible(fn (Rental $record) => in_array($record->status->value ?? $record->status, ['active', 'confirmed']))
+                    ->visible(fn (Rental $record) => ($record->status->value ?? $record->status) === 'active')
                     ->requiresConfirmation()
                     ->modalHeading('Terima Pengembalian Kendaraan')
                     ->modalDescription('Apakah kendaraan telah dikembalikan dan diperiksa kondisinya oleh tim kantor?')
@@ -132,7 +153,7 @@ class RentalResource extends Resource
 
                         Notification::make()
                             ->title('Rental Selesai')
-                            ->body('Mobil telah dikembalikan. Availability kendaraan telah dipulihkan untuk sewa berikutnya.')
+                            ->body('Mobil telah dikembalikan ke kantor. Rental berhasil diselesaikan.')
                             ->success()
                             ->send();
                     }),
@@ -152,7 +173,7 @@ class RentalResource extends Resource
 
                         Notification::make()
                             ->title('Berhasil Membatalkan')
-                            ->body('Pemesanan rental telah dibatalkan dan availability mobil dipulihkan.')
+                            ->body('Pemesanan rental telah dibatalkan.')
                             ->success()
                             ->send();
                     }),

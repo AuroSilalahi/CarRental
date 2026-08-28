@@ -101,9 +101,10 @@ class ProfileController extends Controller
         };
 
         // Store file securely under identity-documents/{user_id}/
-        $directory = 'identity-documents/' . $user->id;
         $disk = config('filesystems.default', 'local');
-        $storedPath = Storage::disk($disk)->putFile($directory, $file);
+        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = "ktp-user-{$user->id}-" . time() . ".{$extension}";
+        $storedPath = Storage::disk($disk)->putFileAs($directory, $file, $filename);
 
         // Create IdentityDocument record with pending_review status
         $identityDocument = IdentityDocument::create([

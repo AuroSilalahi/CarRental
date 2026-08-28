@@ -41,6 +41,11 @@ class AvailabilityService
         Carbon $end,
         ?int $excludeRentalId = null
     ): bool {
+        $car = \App\Models\Car::find($carId);
+        if ($car && ! $car->is_available) {
+            return false;
+        }
+
         return $this->buildConflictQuery($carId, $start, $end, $excludeRentalId)
             ->doesntExist();
     }

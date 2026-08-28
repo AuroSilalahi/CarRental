@@ -177,8 +177,9 @@ class BookingForm extends Component
                 'car_id'          => $this->car->id,
                 'start_date'      => $this->startDate,
                 'end_date'        => $this->endDate,
-                'pickup_location' => $this->destination,
+                'pickup_location' => 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)',
                 'return_location' => 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)',
+                'destination'     => $this->destination,
             ]);
         } catch (EmailNotVerifiedException $e) {
             $this->addError('general', 'Email Anda belum diverifikasi. Silakan verifikasi email terlebih dahulu.');

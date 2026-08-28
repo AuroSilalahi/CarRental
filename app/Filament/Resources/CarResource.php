@@ -107,6 +107,13 @@ class CarResource extends Resource
                     ->image()
                     ->disk(config('filesystems.default', 'public'))
                     ->directory('cars')
+                    ->getUploadedFileNameForStorageUsing(function (Components\FileUpload $component, $file, $get) {
+                        $brand = \Illuminate\Support\Str::slug($get('brand') ?? 'car');
+                        $model = \Illuminate\Support\Str::slug($get('model') ?? 'model');
+                        $plate = \Illuminate\Support\Str::slug($get('license_plate') ?? (string) time());
+                        $ext = $file->getClientOriginalExtension() ?: 'jpg';
+                        return "mobil-{$brand}-{$model}-{$plate}.{$ext}";
+                    })
                     ->visibility('public')
                     ->columnSpanFull(),
             ]);
