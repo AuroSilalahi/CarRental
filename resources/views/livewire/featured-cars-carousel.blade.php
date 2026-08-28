@@ -34,7 +34,7 @@
             {{-- Left Image --}}
             <div class="h-64 sm:h-72 bg-slate-200 rounded-xl overflow-hidden relative flex items-center justify-center group shadow-inner">
                 @if($currentCar->image_path)
-                    <img src="{{ asset('storage/' . $currentCar->image_path) }}" alt="{{ $currentCar->brand }} {{ $currentCar->model }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <img src="{{ $currentCar->image_url }}" alt="{{ $currentCar->brand }} {{ $currentCar->model }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                 @else
                     <span class="text-6xl text-slate-400">🚘</span>
                 @endif
@@ -45,9 +45,15 @@
                     </span>
                 @endif
 
-                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-black px-3.5 py-1.5 rounded-full shadow-lg">
-                    ✓ Tersedia
-                </span>
+                @if($currentCar->is_currently_available)
+                    <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-black px-3.5 py-1.5 rounded-full shadow-lg">
+                        ✓ Tersedia
+                    </span>
+                @else
+                    <span class="absolute top-3 right-3 bg-rose-500 text-white text-xs font-black px-3.5 py-1.5 rounded-full shadow-lg">
+                        ⛔ Sedang Disewa
+                    </span>
+                @endif
             </div>
 
             {{-- Right Info --}}

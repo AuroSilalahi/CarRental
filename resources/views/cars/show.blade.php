@@ -17,7 +17,7 @@
             {{-- Car Image --}}
             <div class="bg-slate-100 aspect-video relative overflow-hidden flex items-center justify-center">
                 @if($car->image_path)
-                    <img src="{{ asset('storage/' . $car->image_path) }}" alt="{{ $car->brand }} {{ $car->model }}" class="w-full h-full object-cover">
+                    <img src="{{ $car->image_url }}" alt="{{ $car->brand }} {{ $car->model }}" class="w-full h-full object-cover">
                 @else
                     <span class="text-6xl text-slate-300">🚗</span>
                 @endif

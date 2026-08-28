@@ -36,12 +36,23 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Kota / Kabupaten</label>
-                    <input type="text" wire:model="city" placeholder="Medan" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                </div>
-                <div>
                     <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Provinsi</label>
-                    <input type="text" wire:model="province" placeholder="Sumatera Utara" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    <select wire:model.live="province" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white cursor-pointer">
+                        <option value="">-- Pilih Provinsi --</option>
+                        @foreach($provinces as $id => $provName)
+                            <option value="{{ $provName }}">{{ $provName }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Kota / Kabupaten</label>
+                    <select wire:model="city" @if(empty($cities)) disabled @endif class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white disabled:bg-slate-100 disabled:cursor-not-allowed cursor-pointer">
+                        <option value="">{{ empty($province) ? '-- Pilih Provinsi Terlebih Dahulu --' : '-- Pilih Kota / Kabupaten --' }}</option>
+                        @foreach($cities as $cityName)
+                            <option value="{{ $cityName }}">{{ $cityName }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 

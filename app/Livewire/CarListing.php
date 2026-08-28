@@ -83,9 +83,17 @@ class CarListing extends Component
         }
 
         if ($this->availabilityFilter === 'available') {
-            $query->where('is_available', true);
+            $query->available();
         } elseif ($this->availabilityFilter === 'unavailable') {
-            $query->where('is_available', false);
+            $query->where(function ($q) {
+                $q->where('is_available', false)
+                  ->orWhereHas('rentals', function ($r) {
+                      $r->whereIn('status', [
+                          \App\Enums\RentalStatus::Confirmed,
+                          \App\Enums\RentalStatus::Active,
+                      ]);
+                  });
+            });
         }
 
         $cars = $query->latest()->get();

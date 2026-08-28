@@ -17,23 +17,32 @@ class BookingForm extends Component
     // Car passed as prop from parent view
     public Car $car;
 
-    #[Validate('required|date|after_or_equal:today')]
+    #[Validate('required|date|after_or_equal:tomorrow')]
     public string $startDate = '';
 
     #[Validate('required|date|after:startDate')]
     public string $endDate = '';
 
-    #[Validate('required|min:5')]
-    public string $pickupLocation = '';
+    public string $pickupLocation = 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)';
 
-    #[Validate('required|min:5')]
-    public string $returnLocation = '';
+    public string $returnLocation = 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)';
+
+    #[Validate('required|min:3')]
+    public string $destination = '';
 
     public int $estimatedCost = 0;
 
     public string $availabilityError = '';
 
     public bool $isAvailable = true;
+
+    public function mount(): void
+    {
+        $this->startDate = now()->addDay()->toDateString();
+        $this->endDate = now()->addDays(2)->toDateString();
+        $this->calculateEstimate();
+        $this->checkAvailability();
+    }
 
     /**
      * Called automatically by Livewire when $startDate changes.
@@ -93,6 +102,12 @@ class BookingForm extends Component
         $this->availabilityError = '';
         $this->isAvailable = true;
 
+        if (! $this->car->is_available) {
+            $this->isAvailable = false;
+            $this->availabilityError = 'Kendaraan ini sedang disewa atau tidak tersedia saat ini. Silakan pilih unit lain.';
+            return;
+        }
+
         if (blank($this->startDate) || blank($this->endDate)) {
             return;
         }
@@ -127,23 +142,22 @@ class BookingForm extends Component
             return $this->addError('general', 'Anda harus login untuk melakukan pemesanan.');
         }
 
+        $tomorrow = now()->addDay()->toDateString();
+
         // Server-side validation
         $this->validate([
-            'startDate'      => 'required|date|after_or_equal:today',
-            'endDate'        => 'required|date|after:startDate',
-            'pickupLocation' => 'required|min:5',
-            'returnLocation' => 'required|min:5',
+            'startDate'   => 'required|date|after_or_equal:' . $tomorrow,
+            'endDate'     => 'required|date|after:startDate',
+            'destination' => 'required|min:3',
         ], [
-            'startDate.required'           => 'Tanggal mulai wajib diisi.',
+            'startDate.required'           => 'Tanggal mulai sewa wajib diisi.',
             'startDate.date'               => 'Format tanggal mulai tidak valid.',
-            'startDate.after_or_equal'     => 'Tanggal mulai tidak boleh sebelum hari ini.',
-            'endDate.required'             => 'Tanggal selesai wajib diisi.',
+            'startDate.after_or_equal'     => 'Pemesanan harus dilakukan minimal H-1 (mulai besok).',
+            'endDate.required'             => 'Tanggal selesai sewa wajib diisi.',
             'endDate.date'                 => 'Format tanggal selesai tidak valid.',
             'endDate.after'                => 'Tanggal selesai harus setelah tanggal mulai.',
-            'pickupLocation.required'      => 'Lokasi pengambilan wajib diisi.',
-            'pickupLocation.min'           => 'Lokasi pengambilan minimal 5 karakter.',
-            'returnLocation.required'      => 'Lokasi pengembalian wajib diisi.',
-            'returnLocation.min'           => 'Lokasi pengembalian minimal 5 karakter.',
+            'destination.required'         => 'Tujuan / Destinasi perjalanan wajib diisi.',
+            'destination.min'              => 'Tujuan perjalanan minimal 3 karakter.',
         ]);
 
         // Re-check availability before submitting
@@ -163,8 +177,8 @@ class BookingForm extends Component
                 'car_id'          => $this->car->id,
                 'start_date'      => $this->startDate,
                 'end_date'        => $this->endDate,
-                'pickup_location' => $this->pickupLocation,
-                'return_location' => $this->returnLocation,
+                'pickup_location' => $this->destination,
+                'return_location' => 'Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)',
             ]);
         } catch (EmailNotVerifiedException $e) {
             $this->addError('general', 'Email Anda belum diverifikasi. Silakan verifikasi email terlebih dahulu.');

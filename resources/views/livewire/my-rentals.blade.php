@@ -1,4 +1,4 @@
-<div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md">
+<div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md relative">
     <div class="flex items-center justify-between mb-6 flex-wrap gap-4 pb-4 border-b border-slate-100">
         <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
             <span>📋</span> Riwayat Pemesanan Saya
@@ -6,7 +6,7 @@
 
         {{-- Filter Status --}}
         <div>
-            <select wire:model.live="statusFilter" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500">
+            <select wire:model.live="statusFilter" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                 <option value="">Semua Status</option>
                 <option value="pending">Menunggu Pembayaran (Pending)</option>
                 <option value="confirmed">Dikonfirmasi (Confirmed)</option>
@@ -29,8 +29,8 @@
     @else
         <div class="space-y-4">
             @foreach($rentals as $rental)
-                <div class="border border-slate-200/80 rounded-2xl p-6 bg-white hover:border-blue-200 hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
+                <div class="border border-slate-200/80 rounded-2xl p-6 bg-white hover:border-blue-300 hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="cursor-pointer" wire:click="openDetailModal({{ $rental->id }})">
                         <div class="flex items-center gap-3 mb-2 flex-wrap">
                             <span class="font-mono font-bold text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-lg">
                                 {{ $rental->reference_number }}
@@ -66,13 +66,14 @@
                             </span>
                         </div>
 
-                        <h4 class="text-lg font-black text-slate-900 mb-1">
+                        <h4 class="text-lg font-black text-slate-900 mb-1 hover:text-blue-600 transition-colors">
                             {{ $rental->car->brand }} {{ $rental->car->model }}
                         </h4>
 
-                        <div class="text-xs font-semibold text-slate-500 flex flex-wrap gap-4">
+                        <div class="text-xs font-semibold text-slate-500 flex flex-wrap gap-4 mt-2">
                             <span>📅 {{ $rental->start_date->format('d M Y') }} – {{ $rental->end_date->format('d M Y') }}</span>
-                            <span>📍 Pickup: {{ Str::limit($rental->pickup_location, 30) }}</span>
+                            <span>📍 Pengambilan: Kantor Utama (Jl. Pemuda No. 1, Medan)</span>
+                            <span>🎯 Destinasi: {{ Str::limit($rental->pickup_location, 30) }}</span>
                         </div>
                     </div>
 
@@ -82,20 +83,14 @@
                         </span>
 
                         <div class="flex items-center gap-2">
-                            <a href="/bookings/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition-all">
-                                Detail
-                            </a>
+                            <button wire:click="openDetailModal({{ $rental->id }})" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition-all cursor-pointer">
+                                👁️ Detail Modal
+                            </button>
 
                             @if(($rental->status->value ?? $rental->status) === 'pending')
-                                @if($hasProof)
-                                    <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold shadow-md shadow-amber-500/20 transition-all active:scale-95">
-                                        Lihat Bukti Transfer →
-                                    </a>
-                                @else
-                                    <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-500/20 transition-all active:scale-95">
-                                        Bayar / Upload Bukti →
-                                    </a>
-                                @endif
+                                <a href="/payments/{{ $rental->id }}" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md shadow-blue-500/20 transition-all active:scale-95">
+                                    Bayar / Info Kantor →
+                                </a>
                             @endif
                         </div>
                     </div>
@@ -107,5 +102,78 @@
             </div>
         </div>
     @endif
-</div>
 
+    {{-- Detail Rental Popup Modal --}}
+    @if($showModal && $selectedRental)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto border border-slate-100">
+                
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-[11px] font-black text-blue-600 uppercase tracking-widest block">Detail Pemesanan</span>
+                        <h3 class="text-lg font-black text-slate-900 font-mono">{{ $selectedRental->reference_number }}</h3>
+                    </div>
+                    <button wire:click="closeModal" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center text-sm transition-all cursor-pointer">
+                        ✕
+                    </button>
+                </div>
+
+                {{-- Car Header Card --}}
+                <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <div class="w-20 h-16 bg-slate-200 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
+                        @if($selectedRental->car->image_path)
+                            <img src="{{ $selectedRental->car->image_url }}" alt="{{ $selectedRental->car->brand }}" class="w-full h-full object-cover">
+                        @else
+                            <span class="text-2xl">🚗</span>
+                        @endif
+                    </div>
+                    <div>
+                        <h4 class="font-black text-slate-900 text-base">{{ $selectedRental->car->brand }} {{ $selectedRental->car->model }}</h4>
+                        <p class="text-xs font-bold text-slate-500">{{ $selectedRental->car->type }} • Plat: {{ $selectedRental->car->license_plate }}</p>
+                        <span class="text-xs font-black text-blue-600 mt-0.5 block">Rp {{ number_format($selectedRental->car->daily_rate_idr, 0, ',', '.') }} / hari</span>
+                    </div>
+                </div>
+
+                {{-- Details Table --}}
+                <div class="space-y-2 text-xs font-semibold text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <div class="flex justify-between py-1.5 border-b border-slate-200/60">
+                        <span class="text-slate-400 font-bold">Tanggal Sewa</span>
+                        <span class="font-bold text-slate-900">{{ $selectedRental->start_date->format('d M Y') }} – {{ $selectedRental->end_date->format('d M Y') }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-200/60">
+                        <span class="text-slate-400 font-bold">Total Durasi</span>
+                        <span class="font-bold text-slate-900">{{ $selectedRental->start_date->diffInDays($selectedRental->end_date) }} Hari</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-200/60">
+                        <span class="text-slate-400 font-bold">Total Biaya</span>
+                        <span class="font-black text-blue-600 text-sm">Rp {{ number_format($selectedRental->total_cost_idr, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-200/60">
+                        <span class="text-slate-400 font-bold">Lokasi Pengambilan</span>
+                        <span class="font-bold text-slate-900 text-right">Kantor Utama (Jl. Pemuda No. 1, Medan)</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-200/60">
+                        <span class="text-slate-400 font-bold">Lokasi Pengembalian</span>
+                        <span class="font-bold text-slate-900 text-right">Kantor Utama (Jl. Pemuda No. 1, Medan)</span>
+                    </div>
+                    <div class="flex justify-between py-1.5">
+                        <span class="text-slate-400 font-bold">Tujuan / Destinasi</span>
+                        <span class="font-bold text-blue-600 text-right">{{ $selectedRental->pickup_location }}</span>
+                    </div>
+                </div>
+
+                {{-- Footer Actions --}}
+                <div class="flex items-center justify-between pt-2">
+                    <button wire:click="closeModal" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition-all cursor-pointer">
+                        Tutup
+                    </button>
+                    <a href="/payments/{{ $selectedRental->id }}" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-md transition-all">
+                        Informasi Kantor & Pembayaran →
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    @endif
+</div>

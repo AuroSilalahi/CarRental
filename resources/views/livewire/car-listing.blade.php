@@ -101,14 +101,14 @@
                     {{-- Image & Badges --}}
                     <div class="h-48 bg-slate-100 relative overflow-hidden flex items-center justify-center">
                         @if($car->image_path)
-                            <img src="{{ asset('storage/' . $car->image_path) }}" alt="{{ $car->brand }} {{ $car->model }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <img src="{{ $car->image_url }}" alt="{{ $car->brand }} {{ $car->model }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         @else
                             <span class="text-5xl text-slate-300">🚘</span>
                         @endif
 
                         {{-- Availability Badge --}}
                         @php
-                            $effectiveAvailable = isset($car->is_date_available) ? $car->is_date_available : $car->is_available;
+                            $effectiveAvailable = isset($car->is_date_available) ? $car->is_date_available : $car->is_currently_available;
                         @endphp
 
                         @if($effectiveAvailable)

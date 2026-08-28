@@ -130,15 +130,18 @@ class RentalService
             $rental->status = RentalStatus::Cancelled;
             $rental->save();
 
+            // Release car availability back to office
+            $rental->car->update(['is_available' => true]);
+
             $this->appendStatusLog($rental, RentalStatus::Cancelled);
         });
     }
 
     /**
-     * Complete a rental.
+     * Complete a rental upon physical vehicle return to office.
      *
      * Only rentals with status Confirmed or Active may be completed.
-     * Appends a status log entry. Car `is_available` flag is not touched.
+     * Marks car as retrieved back at office (is_available = true).
      *
      * @throws RentalStatusConflictException if the rental status is not Confirmed or Active
      */
@@ -154,6 +157,9 @@ class RentalService
             $rental->status = RentalStatus::Completed;
             $rental->save();
 
+            // Mark car as safely returned to office and ready for new rentals
+            $rental->car->update(['is_available' => true]);
+
             $this->appendStatusLog($rental, RentalStatus::Completed);
         });
     }
@@ -165,6 +171,8 @@ class RentalService
     public function checkInAndPayAtOffice(Rental $rental, array $paymentData = []): void
     {
         DB::transaction(function () use ($rental, $paymentData) {
+            // Mark car as currently on rent (unavailable)
+            $rental->car->update(['is_available' => false]);
             $payment = $rental->payment;
             if ($payment) {
                 $payment->update([

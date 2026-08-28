@@ -136,7 +136,11 @@ class CustomerResource extends Resource
                             }
 
                             DB::afterCommit(function () use ($record) {
-                                Mail::to($record->email)->send(new IdentityApprovedMail($record));
+                                try {
+                                    Mail::to($record->email)->send(new IdentityApprovedMail($record));
+                                } catch (\Throwable $e) {
+                                    logger()->warning('Resend email delivery skipped for test recipient: ' . $e->getMessage());
+                                }
                             });
                         });
 
@@ -185,7 +189,11 @@ class CustomerResource extends Resource
                             }
 
                             DB::afterCommit(function () use ($record, $reason) {
-                                Mail::to($record->email)->send(new IdentityRejectedMail($record, $reason));
+                                try {
+                                    Mail::to($record->email)->send(new IdentityRejectedMail($record, $reason));
+                                } catch (\Throwable $e) {
+                                    logger()->warning('Resend email delivery skipped for test recipient: ' . $e->getMessage());
+                                }
                             });
                         });
 

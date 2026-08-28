@@ -11,7 +11,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Only 1 Default Admin Account
+        // 1. Seed Provinces and Cities
+        $this->call(WilayahSeeder::class);
+
+        // 2. Create Only 1 Default Admin Account
         User::firstOrCreate(
             ['email' => 'admin@carrental.com'],
             [

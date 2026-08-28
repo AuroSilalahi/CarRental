@@ -17,7 +17,7 @@ class FeaturedCarsCarousel extends Component
 
     public function mount(): void
     {
-        $this->cars = Car::where('is_available', true)
+        $this->cars = Car::available()
             ->latest()
             ->take(8)
             ->get();

@@ -16,4 +16,12 @@ class EditCar extends EditRecord
             Actions\DeleteAction::make()->label('Hapus'),
         ];
     }
+
+    /**
+     * Redirect directly to the car index table after editing.
+     */
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
+    }
 }

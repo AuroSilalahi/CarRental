@@ -100,9 +100,10 @@ class ProfileController extends Controller
             default => IdentityDocumentFileType::Jpeg,
         };
 
-        // Store file securely in the private (local) disk under identity_documents/{user_id}/
-        $directory = 'identity_documents/' . $user->id;
-        $storedPath = Storage::disk('local')->putFile($directory, $file);
+        // Store file securely under identity-documents/{user_id}/
+        $directory = 'identity-documents/' . $user->id;
+        $disk = config('filesystems.default', 'local');
+        $storedPath = Storage::disk($disk)->putFile($directory, $file);
 
         // Create IdentityDocument record with pending_review status
         $identityDocument = IdentityDocument::create([

@@ -1,116 +1,101 @@
-<div class="space-y-6 text-sm p-1 font-sans">
-    
-    {{-- Header Banner Card --}}
-    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 p-6 text-white shadow-lg">
-        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-blue-600/30 border-2 border-blue-400/40 flex items-center justify-center text-xl font-black text-blue-300 shadow-inner">
-                    {{ strtoupper(substr($customer->name, 0, 2)) }}
-                </div>
-                <div>
-                    <h3 class="text-xl font-black tracking-tight text-white">{{ $customer->name }}</h3>
-                    <p class="text-xs font-medium text-slate-300 flex items-center gap-1.5 mt-0.5">
-                        <span>✉️</span> {{ $customer->email }}
-                    </p>
-                </div>
-            </div>
+<div style="font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: #1e293b;">
 
-            <div class="flex flex-wrap gap-2">
-                {{-- Account Status Badge --}}
-                @php
-                    $accStatus = $customer->account_status->value ?? $customer->account_status;
-                    $accColor = match($accStatus) {
-                        'active' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-                        'deactivated' => 'bg-rose-500/20 text-rose-300 border-rose-500/40',
-                        default => 'bg-slate-500/20 text-slate-300 border-slate-500/40',
-                    };
-                @endphp
-                <span class="px-3 py-1 rounded-full text-xs font-black border uppercase tracking-wider {{ $accColor }}">
-                    Akun: {{ $accStatus }}
-                </span>
+    {{-- Customer Information Table --}}
+    <table style="width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 20px; background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <thead style="background-color: #f8fafc;">
+            <tr>
+                <th colspan="2" style="padding: 14px 18px; text-align: left; font-size: 15px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0;">
+                    👤 Data Pelanggan — {{ $customer->name }}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 10px 18px; width: 32%; font-weight: 700; color: #64748b; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9;">Nama Lengkap</td>
+                <td style="padding: 10px 18px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{{ $customer->name }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 18px; font-weight: 700; color: #64748b; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9;">Alamat Email</td>
+                <td style="padding: 10px 18px; font-weight: 600; color: #2563eb; border-bottom: 1px solid #f1f5f9;">{{ $customer->email }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 18px; font-weight: 700; color: #64748b; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9;">Nomor Telepon / WhatsApp</td>
+                <td style="padding: 10px 18px; font-weight: 700; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{{ $customer->phone ?? 'Belum Diisi' }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 18px; font-weight: 700; color: #64748b; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9;">Tanggal Registrasi</td>
+                <td style="padding: 10px 18px; font-weight: 600; color: #334155; border-bottom: 1px solid #f1f5f9;">{{ $customer->created_at->format('d M Y, H:i') }} WIB</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 18px; font-weight: 700; color: #64748b; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9;">Kota & Provinsi</td>
+                <td style="padding: 10px 18px; font-weight: 700; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{{ $customer->city ?? '-' }}, {{ $customer->province ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 18px; font-weight: 700; color: #64748b; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9;">Alamat Lengkap Rumah</td>
+                <td style="padding: 10px 18px; font-weight: 500; color: #334155; border-bottom: 1px solid #f1f5f9;">{{ $customer->address ?? 'Alamat belum diisi.' }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 18px; font-weight: 700; color: #64748b; background-color: #f8fafc;">Status Akun & Identitas KTP</td>
+                <td style="padding: 10px 18px;">
+                    @php
+                        $accStatus = $customer->account_status->value ?? $customer->account_status;
+                    @endphp
+                    <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; background-color: #dcfce7; color: #166534; margin-right: 8px;">
+                        AKUN: {{ strtoupper($accStatus) }}
+                    </span>
 
-                {{-- KTP Status Badge --}}
-                @php
-                    $docStatus = $document ? ($document->status->value ?? $document->status) : 'none';
-                    $ktpBadge = match($docStatus) {
-                        'verified' => 'bg-emerald-500 text-white',
-                        'pending_review' => 'bg-amber-500 text-white animate-pulse',
-                        'rejected' => 'bg-rose-500 text-white',
-                        default => 'bg-slate-600 text-slate-200',
-                    };
-                @endphp
-                <span class="px-3 py-1 rounded-full text-xs font-black shadow-sm uppercase tracking-wider {{ $ktpBadge }}">
-                    KTP: {{ str_replace('_', ' ', $docStatus) }}
-                </span>
-            </div>
-        </div>
-    </div>
+                    @php
+                        $docStatus = $document ? ($document->status->value ?? $document->status) : 'none';
+                        $ktpBg = match($docStatus) {
+                            'verified' => '#dcfce7',
+                            'pending_review' => '#fef3c7',
+                            'rejected' => '#ffe4e6',
+                            default => '#f1f5f9',
+                        };
+                        $ktpText = match($docStatus) {
+                            'verified' => '#166534',
+                            'pending_review' => '#92400e',
+                            'rejected' => '#9f1239',
+                            default => '#475569',
+                        };
+                    @endphp
+                    <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; background-color: {{ $ktpBg }}; color: {{ $ktpText }};">
+                        KTP: {{ strtoupper(str_replace('_', ' ', $docStatus)) }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-    {{-- Details Grid Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {{-- Phone --}}
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-1">
-            <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 block">📞 Nomor Telepon</span>
-            <span class="font-extrabold text-slate-900 text-sm block">{{ $customer->phone ?? 'Belum Diisi' }}</span>
-        </div>
-
-        {{-- Registration Date --}}
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-1">
-            <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 block">📅 Tanggal Registrasi</span>
-            <span class="font-extrabold text-slate-900 text-sm block">{{ $customer->created_at->format('d M Y, H:i') }} WIB</span>
-        </div>
-
-        {{-- Location / City --}}
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-1">
-            <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 block">📍 Kota / Provinsi</span>
-            <span class="font-extrabold text-slate-900 text-sm block">{{ $customer->city ?? '-' }}, {{ $customer->province ?? '-' }}</span>
-        </div>
-    </div>
-
-    {{-- Full Address Card --}}
-    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 space-y-1">
-        <span class="text-[11px] font-black uppercase tracking-wider text-slate-400 block">🏠 Alamat Lengkap Rumah</span>
-        <p class="font-semibold text-slate-800 text-xs leading-relaxed">{{ $customer->address ?? 'Alamat rumah belum diisi oleh pelanggan.' }}</p>
-    </div>
-
-    {{-- KTP Identity Document Section --}}
-    <div class="border-t border-slate-200 pt-5 space-y-4">
-        <div class="flex items-center justify-between">
-            <h4 class="font-black text-slate-900 text-base flex items-center gap-2">
-                <span>🪪</span> Dokumen Identitas Pelanggan (KTP / SIM)
-            </h4>
-            @if($documentUrl)
-                <a href="{{ $documentUrl }}" target="_blank" class="inline-flex items-center gap-1 text-xs font-black text-blue-600 hover:text-blue-800 underline bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 transition-all">
-                    🔍 Buka Link AWS S3 Resolusi Penuh →
-                </a>
-            @endif
-        </div>
-
-        @if($document && $documentUrl)
-            <div class="space-y-3">
-                @if(str_contains(strtolower($document->file_path), '.pdf'))
-                    <div class="p-6 bg-slate-100 rounded-2xl text-center text-xs font-bold text-slate-700 border border-slate-200 space-y-2">
-                        <span class="text-3xl block">📄</span>
-                        <p>Dokumen KTP ini diunggah dalam format PDF.</p>
-                        <a href="{{ $documentUrl }}" target="_blank" class="inline-block bg-blue-600 text-white font-extrabold px-4 py-2 rounded-xl shadow-sm">
-                            Buka Dokumen PDF S3 →
-                        </a>
-                    </div>
-                @else
-                    <div class="relative rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-900 shadow-md flex items-center justify-center p-2 group">
-                        <img src="{{ $documentUrl }}" alt="Dokumen KTP {{ $customer->name }}" class="max-h-80 w-auto object-contain rounded-xl transition-transform duration-300 group-hover:scale-105">
-                    </div>
-                @endif
-            </div>
-        @else
-            <div class="bg-amber-50 text-amber-900 p-5 rounded-2xl text-xs font-bold border border-amber-200/80 flex items-center gap-3">
-                <span class="text-2xl">⚠️</span>
-                <div>
-                    <h5 class="font-black text-amber-900">Belum Ada Dokumen KTP</h5>
-                    <p class="font-semibold text-amber-700 mt-0.5">Pelanggan ini belum mengunggah dokumen KTP ke dalam sistem.</p>
-                </div>
-            </div>
-        @endif
-    </div>
+    {{-- KTP Document Image Section --}}
+    <table style="width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <thead style="background-color: #f8fafc;">
+            <tr>
+                <th style="padding: 14px 18px; text-align: left; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0;">
+                    🪪 Dokumen Identitas Pelanggan (KTP / SIM)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 20px; text-align: center;">
+                    @if($document && $documentUrl)
+                        <div style="margin-bottom: 14px;">
+                            <a href="{{ $documentUrl }}" target="_blank" style="display: inline-block; padding: 8px 18px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 12px; font-weight: 800;">
+                                🔍 Buka Foto KTP Resolusi Penuh di Tab Baru →
+                            </a>
+                        </div>
+                        <div style="background-color: #0f172a; padding: 12px; border-radius: 12px; display: inline-block; max-width: 100%;">
+                            <img src="{{ $documentUrl }}" alt="KTP {{ $customer->name }}" style="max-height: 300px; max-width: 100%; object-fit: contain; border-radius: 8px;">
+                        </div>
+                    @else
+                        <div style="padding: 16px; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; color: #92400e; font-weight: 700; font-size: 13px;">
+                            ⚠️ Pelanggan ini belum mengunggah foto KTP.
+                        </div>
+                    @endif
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
 </div>

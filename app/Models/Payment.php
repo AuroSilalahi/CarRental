@@ -53,10 +53,16 @@ class Payment extends Model
         $disk = config('filesystems.default', 'local');
 
         if ($disk === 's3') {
-            return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->proof_path, now()->addMinutes(15));
+            try {
+                if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($this->proof_path)) {
+                    return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->proof_path, now()->addMinutes(15));
+                }
+            } catch (\Throwable $e) {
+                // Fallback to local asset URL if S3 object is missing or unreachable
+            }
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->proof_path);
+        return asset('storage/' . $this->proof_path);
     }
 
     /**

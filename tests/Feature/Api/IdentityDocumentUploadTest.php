@@ -124,7 +124,8 @@ class IdentityDocumentUploadTest extends TestCase
     #[Test]
     public function it_stores_the_uploaded_file_in_storage(): void
     {
-        Storage::fake('local');
+        $disk = config('filesystems.default', 'local');
+        Storage::fake($disk);
 
         $user = $this->createUser();
 
@@ -138,7 +139,7 @@ class IdentityDocumentUploadTest extends TestCase
         // Retrieve the saved record and confirm the path exists in storage
         $document = IdentityDocument::first();
         $this->assertNotNull($document);
-        Storage::disk('local')->assertExists($document->file_path);
+        Storage::disk($disk)->assertExists($document->file_path);
     }
 
     /**
@@ -158,7 +159,7 @@ class IdentityDocumentUploadTest extends TestCase
 
         $document = IdentityDocument::first();
         $this->assertNotNull($document);
-        $this->assertStringStartsWith('identity_documents/' . $user->id, $document->file_path);
+        $this->assertStringStartsWith('identity-documents/' . $user->id, $document->file_path);
     }
 
     /**

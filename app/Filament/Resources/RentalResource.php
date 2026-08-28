@@ -121,7 +121,7 @@ class RentalResource extends Resource
                     ->label('Terima Pengembalian Mobil (Selesai)')
                     ->icon('heroicon-o-check-badge')
                     ->color('primary')
-                    ->visible(fn (Rental $record) => ($record->status->value ?? $record->status) === 'active')
+                    ->visible(fn (Rental $record) => in_array($record->status->value ?? $record->status, ['active', 'confirmed']))
                     ->requiresConfirmation()
                     ->modalHeading('Terima Pengembalian Kendaraan')
                     ->modalDescription('Apakah kendaraan telah dikembalikan dan diperiksa kondisinya oleh tim kantor?')

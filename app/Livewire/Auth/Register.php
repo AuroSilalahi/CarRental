@@ -38,6 +38,28 @@ class Register extends Component
     #[Validate('required|string|max:100')]
     public string $province = '';
 
+    public array $provinces = [];
+
+    public array $cities = [];
+
+    public function mount(): void
+    {
+        $this->provinces = \App\Models\Province::orderBy('name')->pluck('name', 'id')->toArray();
+    }
+
+    public function updatedProvince($value): void
+    {
+        $this->city = '';
+        $this->cities = [];
+
+        if ($value) {
+            $prov = \App\Models\Province::where('name', $value)->first();
+            if ($prov) {
+                $this->cities = $prov->cities()->orderBy('name')->pluck('name', 'name')->toArray();
+            }
+        }
+    }
+
     public function register(): mixed
     {
         $this->validate([

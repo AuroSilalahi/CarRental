@@ -74,13 +74,13 @@
                 {{-- Start Date --}}
                 <div>
                     <label for="startDate" class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Tanggal Mulai Sewa <span class="text-rose-500">*</span>
+                        Tanggal Mulai Sewa (Minimal Besok / H-1) <span class="text-rose-500">*</span>
                     </label>
                     <input
                         type="date"
                         id="startDate"
                         wire:model.live="startDate"
-                        min="{{ now()->toDateString() }}"
+                        min="{{ now()->addDay()->toDateString() }}"
                         class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     >
                     @error('startDate')
@@ -97,10 +97,38 @@
                         type="date"
                         id="endDate"
                         wire:model.live="endDate"
-                        min="{{ now()->addDay()->toDateString() }}"
+                        min="{{ now()->addDays(2)->toDateString() }}"
                         class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     >
                     @error('endDate')
+                        <p class="text-rose-600 text-xs font-bold mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Fixed Office Pickup & Return Detail Box --}}
+                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2 text-xs font-semibold text-slate-700">
+                    <div class="flex items-start gap-2">
+                        <span class="text-sm">🏢</span>
+                        <div>
+                            <span class="font-bold text-slate-900 block">Pengambilan & Pengembalian Mobil:</span>
+                            <span class="text-slate-600">Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Destination Purpose Input --}}
+                <div>
+                    <label for="destination" class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Destinasi / Tujuan Perjalanan <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea
+                        id="destination"
+                        wire:model="destination"
+                        rows="2"
+                        placeholder="Contoh: Danau Toba, Berastagi, Pematangsiantar, Tour Kota Medan, dll."
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    ></textarea>
+                    @error('destination')
                         <p class="text-rose-600 text-xs font-bold mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -121,40 +149,6 @@
                         ⚠️ {{ $availabilityError }}
                     </div>
                 @endif
-
-                {{-- Destination Purpose --}}
-                <div>
-                    <label for="pickupLocation" class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Destinasi / Tujuan Perjalanan <span class="text-rose-500">*</span>
-                    </label>
-                    <textarea
-                        id="pickupLocation"
-                        wire:model="pickupLocation"
-                        rows="2"
-                        placeholder="Contoh: Perjalanan ke Pematangsiantar, Danau Toba, Berastagi, Medan Kota, dll."
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    ></textarea>
-                    @error('pickupLocation')
-                        <p class="text-rose-600 text-xs font-bold mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Return Location --}}
-                <div>
-                    <label for="returnLocation" class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Lokasi Pengembalian <span class="text-rose-500">*</span>
-                    </label>
-                    <textarea
-                        id="returnLocation"
-                        wire:model="returnLocation"
-                        rows="2"
-                        placeholder="Kantor Utama CarRental (Jl. Pemuda No. 1, Medan)"
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    ></textarea>
-                    @error('returnLocation')
-                        <p class="text-rose-600 text-xs font-bold mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
                 {{-- Submit Button --}}
                 <button

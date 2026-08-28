@@ -53,10 +53,16 @@ class IdentityDocument extends Model
         $disk = config('filesystems.default', 'local');
 
         if ($disk === 's3') {
-            return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->file_path, now()->addMinutes(15));
+            try {
+                if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($this->file_path)) {
+                    return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->file_path, now()->addMinutes(15));
+                }
+            } catch (\Throwable $e) {
+                // Fallback to local URL if S3 is unavailable or file stored locally
+            }
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+        return asset('storage/' . $this->file_path);
     }
 
     /**

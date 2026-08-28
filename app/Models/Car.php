@@ -60,10 +60,48 @@ class Car extends Model
         $disk = config('filesystems.default', 'local');
 
         if ($disk === 's3') {
-            return \Illuminate\Support\Facades\Storage::disk('s3')->url($this->image_path);
+            try {
+                if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($this->image_path)) {
+                    return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($this->image_path, now()->addHours(24));
+                }
+            } catch (\Throwable $e) {
+                // Fallback to local URL if S3 is unreachable
+            }
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image_path);
+        return asset('storage/' . $this->image_path);
+    }
+
+    /**
+     * Scope query to only include cars that are marked as available
+     * and currently have no active or confirmed rentals.
+     */
+    public function scopeAvailable($query)
+    {
+        return $query->where('is_available', true)
+            ->whereDoesntHave('rentals', function ($q) {
+                $q->whereIn('status', [
+                    \App\Enums\RentalStatus::Confirmed,
+                    \App\Enums\RentalStatus::Active,
+                ]);
+            });
+    }
+
+    /**
+     * Check if car is currently available (not rented out).
+     */
+    public function getIsCurrentlyAvailableAttribute(): bool
+    {
+        if (! $this->is_available) {
+            return false;
+        }
+
+        return ! $this->rentals()
+            ->whereIn('status', [
+                \App\Enums\RentalStatus::Confirmed,
+                \App\Enums\RentalStatus::Active,
+            ])
+            ->exists();
     }
 
     /**

@@ -12,6 +12,29 @@ class MyRentals extends Component
 
     public string $statusFilter = '';
 
+    public ?Rental $selectedRental = null;
+    public bool $showModal = false;
+
+    public function openDetailModal(int $rentalId): void
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $this->selectedRental = Rental::where('customer_id', $user->id)
+            ->with(['car', 'payment', 'statusLogs'])
+            ->find($rentalId);
+
+        if ($this->selectedRental) {
+            $this->showModal = true;
+        }
+    }
+
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->selectedRental = null;
+    }
+
     public function render()
     {
         /** @var \App\Models\User $user */

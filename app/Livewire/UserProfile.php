@@ -22,6 +22,9 @@ class UserProfile extends Component
 
     public $ktpDocument;
 
+    public array $provinces = [];
+    public array $cities = [];
+
     public function mount(): void
     {
         /** @var \App\Models\User $user */
@@ -33,6 +36,28 @@ class UserProfile extends Component
         $this->address = $user->address ?? '';
         $this->city = $user->city ?? '';
         $this->province = $user->province ?? '';
+
+        $this->provinces = \App\Models\Province::orderBy('name')->pluck('name', 'id')->toArray();
+
+        if ($this->province) {
+            $prov = \App\Models\Province::where('name', $this->province)->first();
+            if ($prov) {
+                $this->cities = $prov->cities()->orderBy('name')->pluck('name', 'name')->toArray();
+            }
+        }
+    }
+
+    public function updatedProvince($value): void
+    {
+        $this->city = '';
+        $this->cities = [];
+
+        if ($value) {
+            $prov = \App\Models\Province::where('name', $value)->first();
+            if ($prov) {
+                $this->cities = $prov->cities()->orderBy('name')->pluck('name', 'name')->toArray();
+            }
+        }
     }
 
     public function updateProfile(): void
@@ -81,7 +106,8 @@ class UserProfile extends Component
             default => IdentityDocumentFileType::Jpeg,
         };
 
-        $path = $this->ktpDocument->store('identity-documents', 'public');
+        $disk = config('filesystems.default', 'local');
+        $path = $this->ktpDocument->store('identity-documents', $disk);
 
         IdentityDocument::create([
             'customer_id' => $user->id,
