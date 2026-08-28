@@ -152,7 +152,7 @@ class BookingForm extends Component
         ], [
             'startDate.required'           => 'Tanggal mulai sewa wajib diisi.',
             'startDate.date'               => 'Format tanggal mulai tidak valid.',
-            'startDate.after_or_equal'     => 'Pemesanan harus dilakukan minimal H-1 (mulai besok).',
+            'startDate.after_or_equal'     => 'Pemesanan harus dilakukan minimal H+1 (mulai besok).',
             'endDate.required'             => 'Tanggal selesai sewa wajib diisi.',
             'endDate.date'                 => 'Format tanggal selesai tidak valid.',
             'endDate.after'                => 'Tanggal selesai harus setelah tanggal mulai.',

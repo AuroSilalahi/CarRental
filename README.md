@@ -20,7 +20,7 @@
 
 **CarRental** is a full-stack web platform designed to streamline car rental operations in Indonesia. It combines **Online Self-Service Reservations** for customers with **In-Person Office Asset Operations** for administrators:
 
-* **Customer Web Portal**: Customers register with regional location selection (all 38 Indonesian provinces), upload KTP identity documents for verification, explore available vehicles with real-time price estimation, and submit booking requests (starting H-1).
+* **Customer Web Portal**: Customers register with regional location selection (all 38 Indonesian provinces), upload KTP identity documents for verification, explore available vehicles with real-time price estimation, and submit booking requests (starting H+1).
 * **Filament Admin Panel (`/admin`)**: Administrators inspect customer KTP documents via secure AWS S3 previews, approve KYC verifications, manage vehicle inventory, process on-site office payments (Cash, EDC, QRIS, Bank Transfer), and execute post-rent vehicle return inspections.
 
 ---
